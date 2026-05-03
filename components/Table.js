@@ -1,0 +1,163 @@
+'use client';
+
+import { useState } from 'react';
+
+export default function Table({
+  columns,
+  data,
+  actions = [],
+  onActionClick = () => {},
+  itemsPerPage = 10,
+  maxHeight = '650px',     // ← You can change this
+}) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const startIdx = (currentPage - 1) * itemsPerPage;
+  const endIdx = startIdx + itemsPerPage;
+  const paginatedData = data.slice(startIdx, endIdx);
+
+  const formatDate = (timestamp) => {
+    if (!timestamp) return '-';
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  return (
+    <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden">
+      
+      {/* Table Container with Scroll */}
+      <div 
+        className="overflow-auto"
+        style={{ maxHeight: maxHeight }}
+      >
+        <table className="w-full min-w-[1200px] ">
+          {/* Header */}
+          <thead className="sticky top-0 z-10 bg-[#1f3d3a] text-white">
+            <tr>
+              {columns.map((col, idx) => (
+                <th
+                  key={idx}
+                  className="px-6 py-4 text-left text-sm font-semibold whitespace-nowrap"
+                >
+                  {col.label}
+                </th>
+              ))}
+              {actions.length > 0 && (
+                <th className="px-6 py-4 text-left text-sm font-semibold w-28">Action</th>
+              )}
+            </tr>
+          </thead>
+
+          {/* Body */}
+          <tbody className="divide-y divide-gray-100">
+            {paginatedData.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columns.length + (actions.length > 0 ? 1 : 0)}
+                  className="px-6 py-20 text-center text-gray-500"
+                >
+                  No records found
+                </td>
+              </tr>
+            ) : (
+              paginatedData.map((row, rowIdx) => (
+                <tr 
+                  key={row.id || rowIdx} 
+                  className="hover:bg-gray-50 transition-colors group"
+                >
+                  {columns.map((col, colIdx) => {
+                    const cellValue = row[col.key];
+
+                    if (col.key === 'avatar' || col.key.toLowerCase().includes('avatar')) {
+                      return (
+                        <td key={colIdx} className="px-6 py-4">
+                          <img
+                            src={cellValue || '/default-avatar.png'}
+                            alt="avatar"
+                            className="w-9 h-9 rounded-full object-cover border border-gray-200"
+                          />
+                        </td>
+                      );
+                    }
+
+                    if (col.type === 'badge') {
+                      return (
+                        <td key={colIdx} className="px-6 py-4">
+                          <span className="px-3 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700">
+                            {cellValue}
+                          </span>
+                        </td>
+                      );
+                    }
+
+                    if (col.type === 'date') {
+                      return (
+                        <td key={colIdx} className="px-6 py-4 text-sm text-gray-700">
+                          {formatDate(cellValue)}
+                        </td>
+                      );
+                    }
+
+                    return (
+                      <td key={colIdx} className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                        {cellValue || '-'}
+                      </td>
+                    );
+                  })}
+
+                  {actions.length > 0 && (
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3 opacity-70 group-hover:opacity-100 transition">
+                        {actions.map((action, i) => (
+                          <button
+                            key={i}
+                            onClick={() => onActionClick(action.id, row)}
+                            className="text-gray-500 hover:text-gray-700 p-1.5 hover:bg-gray-100 rounded-lg transition"
+                            title={action.label}
+                          >
+                            {action.id === 'edit' && '✏️'}
+                            {action.id === 'delete' && '🗑️'}
+                          </button>
+                        ))}
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-6 py-4 border-t bg-gray-50">
+          <div className="text-sm text-gray-500">
+            Showing {startIdx + 1} to {Math.min(endIdx, data.length)} of {data.length} entries
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 text-sm border rounded-lg hover:bg-white disabled:opacity-50 transition"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 text-sm border rounded-lg hover:bg-white disabled:opacity-50 transition"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

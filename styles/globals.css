@@ -1,0 +1,106 @@
+@import 'tailwindcss';
+
+/* =========================
+   MINIMAL THEME (4 COLORS)
+========================= */
+:root {
+  --background: #111827;
+  --foreground: #f9fafb;
+
+  --primary: #4ade80;
+  --primary-light: #1f2937;
+
+  --border: #374151;       /* light border */
+}
+
+/* =========================
+   DARK MODE (OPTIONAL)
+========================= */
+.dark {
+  --background: #111827;
+  --foreground: #f9fafb;
+
+  --primary: #4ade80;
+  --primary-light: #1f2937;
+
+  --border: #374151;
+}
+
+/* =========================
+   TAILWIND MAPPING
+========================= */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+
+  --color-border: var(--border);
+}
+
+/* =========================
+   BASE STYLES
+========================= */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  input,
+  textarea,
+  select {
+    @apply w-full px-3 py-2 rounded-md border border-border bg-background text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary;
+  }
+
+  button {
+    @apply rounded-md font-medium transition;
+  }
+}
+
+/* =========================
+   SIMPLE UTIL CLASSES
+========================= */
+@layer components {
+
+  .card {
+    @apply bg-background border border-border rounded-lg shadow-sm;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white px-4 py-2 hover:opacity-90;
+  }
+
+  .btn-secondary {
+    @apply border border-border px-4 py-2 text-foreground;
+  }
+
+  .table {
+    @apply w-full border border-border rounded-lg overflow-hidden;
+  }
+
+  .table thead {
+    @apply bg-primary text-white;
+  }
+
+  .table th,
+  .table td {
+    @apply p-3 text-left;
+  }
+
+  .table tr {
+    @apply border-t border-border;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 3px;
+}
