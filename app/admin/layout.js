@@ -12,6 +12,7 @@ import {
   CheckCircle,
   TrendingUp,
   Award,
+  Map,
   LogOut
 } from 'lucide-react';
 
@@ -44,17 +45,18 @@ export default function AdminLayout({ children }) {
     { label: 'All Reports', href: '/admin/reports', icon: FileText },
     { label: 'Risk Assessments', href: '/admin/risk-assessments', icon: AlertTriangle },
     { label: 'Corrective Actions', href: '/admin/actions', icon: CheckCircle },
-    { label: 'Personnel', href: '/admin/personnel', icon: Users },
+    { label: 'Personnel', href: '/admin/personnel', icon: Users }, 
     { label: 'Analysis', href: '/admin/analysis', icon: BarChart3 },
     { label: 'Performance', href: '/admin/performance', icon: TrendingUp },
     { label: 'Training', href: '/admin/training', icon: Award },
+    { label: 'Map', href: '/admin/map', icon: Map },
   ];
 
   return (
     <div className="flex h-screen bg-gray-50">
 
       {/* SIDEBAR */}
-      <aside className="w-72 bg-[#1f3d3a] text-white flex flex-col shadow-xl">
+      <aside className="w-72 bg-primary text-white flex flex-col shadow-xl">
 
         <div className="px-6 py-5 border-b border-white/10">
           <div className="py-6">

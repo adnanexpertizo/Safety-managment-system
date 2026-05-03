@@ -364,7 +364,7 @@ export default function AdminRiskAssessments() {
             className="w-full px-4 py-3 border rounded-xl"
           />
 
-          {/* IMAGE UI (UNCHANGED) */}
+          {/* IMAGE UI */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Upload Risk Image</label>
             <div

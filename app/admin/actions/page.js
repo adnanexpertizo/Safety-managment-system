@@ -127,7 +127,7 @@ export default function CorrectiveActionsPage() {
         </div>
 
         {/* FILTERS */}
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+        <div className="flex flex-col sm:flex-row gap-3 w-full">
           <CustomSelect
             options={[
               { value: 'All', label: 'All Status' },

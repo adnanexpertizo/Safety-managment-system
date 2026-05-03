@@ -24,43 +24,64 @@ export default function FilterBar({
     { value: 'closed', label: 'Closed' },
   ];
 
-  const viewOptions = [
-    { value: '', label: 'All Reports' },
+  // ✅ FIXED: use IDs (important for filtering)
+  const employeeOptions = [
+    { value: '', label: 'All Employees' },
     { value: 'my', label: 'My Reports' },
+
+    { value: 'emp1', label: 'John Smith' },
+    { value: 'emp2', label: 'Adnan Rafiq' },
+    { value: 'emp3', label: 'Muhammad Danish' },
+    { value: 'emp4', label: 'Abdullah Naseer' },
+    { value: 'emp5', label: 'Izhaan Saqib' },
   ];
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+      {/* ✅ FLEX WRAP + MIN WIDTH FIX */}
+      <div className="flex flex-wrap gap-4">
 
         {/* Report Type */}
-        <CustomSelect
-          label="Report Type"
-          value={filters.type || ''}
-          onChange={(value) => onFilterChange({ ...filters, type: value || null })}
-          options={typeOptions}
-        />
+        <div className="min-w-[220px] flex-1">
+          <CustomSelect
+            label="Report Type"
+            value={filters.type || ''}
+            onChange={(value) =>
+              onFilterChange({ ...filters, type: value || null })
+            }
+            options={typeOptions}
+          />
+        </div>
 
         {/* Status */}
-        <CustomSelect
-          label="Status"
-          value={filters.status || ''}
-          onChange={(value) => onFilterChange({ ...filters, status: value || null })}
-          options={statusOptions}
-        />
-
-        {/* View - Admin Only */}
-        {isAdmin && (
+        <div className="min-w-[220px] flex-1">
           <CustomSelect
-            label="View"
-            value={filters.userId || ''}
-            onChange={(value) => onFilterChange({ ...filters, userId: value || null })}
-            options={viewOptions}
+            label="Status"
+            value={filters.status || ''}
+            onChange={(value) =>
+              onFilterChange({ ...filters, status: value || null })
+            }
+            options={statusOptions}
           />
+        </div>
+
+        {/* Employee */}
+        {isAdmin && (
+          <div className="min-w-[220px] flex-1">
+            <CustomSelect
+              label="Employee"
+              value={filters.userId || ''}
+              onChange={(value) =>
+                onFilterChange({ ...filters, userId: value || null })
+              }
+              options={employeeOptions}
+            />
+          </div>
         )}
 
-        {/* Search Input */}
-        <div>
+        {/* Search */}
+        <div className="min-w-[260px] flex-1">
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Search
           </label>
@@ -68,8 +89,11 @@ export default function FilterBar({
             type="text"
             placeholder="Search reports..."
             value={filters.search || ''}
-            onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
-            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none text-[15px]"
+            onChange={(e) =>
+              onFilterChange({ ...filters, search: e.target.value })
+            }
+            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl 
+            focus:border-blue-600 focus:ring-0 focus:outline-none text-[15px]"
           />
         </div>
 

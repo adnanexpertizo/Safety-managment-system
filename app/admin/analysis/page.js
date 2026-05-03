@@ -76,7 +76,7 @@ export default function AdminAnalysis() {
     <div className="flex min-h-screen bg-background overflow-hidden">
       <div className="flex-1 overflow-auto p-8">
         <div className="max-w-7xl mx-auto">
-          
+
           {/* Header */}
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
             <div>
@@ -85,7 +85,10 @@ export default function AdminAnalysis() {
             </div>
 
             {/* Custom Select Filters */}
-            <div className="flex flex-wrap gap-4">
+
+          </div>
+          <div className="flex flex-wrap gap-4 w-full">
+            <div className='w-[30%]'>
               <CustomSelect
                 options={[
                   { value: '30', label: 'Last 30 Days' },
@@ -93,8 +96,10 @@ export default function AdminAnalysis() {
                 ]}
                 value={dateRange}
                 onChange={setDateRange}
+                minWidth="180px"
               />
-
+            </div>
+            <div className='w-[30%]'>
               <CustomSelect
                 options={[
                   { value: 'All', label: 'All Severities' },
@@ -104,8 +109,10 @@ export default function AdminAnalysis() {
                 ]}
                 value={severityFilter}
                 onChange={setSeverityFilter}
+                minWidth="180px"
               />
-
+            </div>
+            <div className='w-[30%]'>
               <CustomSelect
                 options={[
                   { value: 'All', label: 'All Departments' },
@@ -114,34 +121,31 @@ export default function AdminAnalysis() {
                 ]}
                 value={departmentFilter}
                 onChange={setDepartmentFilter}
+                minWidth="180px"
               />
             </div>
           </div>
 
-          {/* KPI Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-            <div className="card p-6 text-center">
-              <p className="text-sm text-gray-500">Total Reports</p>
-              <p className="text-4xl font-bold mt-1">{totalReports}</p>
-            </div>
-            <div className="card p-6 text-center">
-              <p className="text-sm text-gray-500">Open Reports</p>
-              <p className="text-4xl font-bold mt-1 text-orange-600">{openReports}</p>
-            </div>
-            <div className="card p-6 text-center">
-              <p className="text-sm text-gray-500">High Risk Open</p>
-              <p className="text-4xl font-bold mt-1 text-red-600">{highRiskOpen}</p>
-            </div>
-            <div className="card p-6 text-center">
-              <p className="text-sm text-gray-500">Avg Resolution</p>
-              <p className="text-4xl font-bold mt-1">4.2d</p>
-            </div>
-            <div className="card p-6 text-center">
-              <p className="text-sm text-gray-500">Repeat Hazards</p>
-              <p className="text-4xl font-bold mt-1">7</p>
-            </div>
-          </div>
 
+{/* make card of these  */} 
+          <div className="flex flex-wrap gap-4 w-full justify-between py-4">
+
+          {[
+            { label: 'Total Reports', value: totalReports, color: 'from-blue-500 to-blue-600' },
+            { label: 'Open Reports', value: openReports, color: 'from-orange-400 to-orange-500' },
+            { label: 'High Risk Open', value: highRiskOpen, color: 'from-red-500 to-red-600' },
+            { label: 'Avg Resolution', value: '4.2d', color: 'from-green-400 to-green-600' },
+            { label: 'Repeat Hazards', value: 7, color: 'from-purple-500 to-purple-600' },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className={`rounded-xl p-8 py-6 m-4 bg-white border shadow-sm hover:shadow-md transition w-[500px]`}
+            >
+              <p className="text-sm text-gray-500 text-center">{item.label}</p>
+              <h2 className="text-3xl font-bold mt-2 text-center">{item.value}</h2>
+            </div>
+          ))}
+        </div>
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
             <div className="lg:col-span-4 card p-6">
