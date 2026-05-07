@@ -1,19 +1,19 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import {
-  addDocument,
-  updateDocument,
-  deleteDocument,
-  subscribeToCollection,
-  uploadImage
-} from '@/lib/firebase';
-
+import { useEffect, useState, useMemo } from 'react';
 import FilterBar from '@/components/FilterBar';
 import Table from '@/components/Table';
 import Button from '@/components/Button';
 import Modal from '@/components/Modal';
 import CustomSelect from '@/components/CustomSelect';
+
+import {
+  getLocalRiskAssessments,
+  addLocalRiskAssessment,
+  updateLocalRiskAssessment,
+  deleteLocalRiskAssessment,
+  getLocalEmployees
+} from '@/lib/localStorage';
 
 const staticEmployees = [
   { id: 'emp1', name: 'John Smith', designation: 'Safety Officer' },
@@ -27,10 +27,11 @@ export default function AdminRiskAssessments() {
   const [assessments, setAssessments] = useState([]);
   const [filteredAssessments, setFilteredAssessments] = useState([]);
   const [filters, setFilters] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAssessment, setEditingAssessment] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null });
 
   const [formData, setFormData] = useState({
     activity: '',
@@ -39,23 +40,12 @@ export default function AdminRiskAssessments() {
     location: '',
     likelihood: 3,
     severity: 3,
-
     existingControls: '',
     additionalControls: '',
-    controlEffectiveness: '',
-    residualRisk: '',
-
     ppeRequired: '',
     responsiblePerson: '',
-    legalRequirement: '',
-    riskMethod: '',
-    riskOwner: '',
-
     status: 'open',
     reviewDate: '',
-    nextReviewDate: '',
-    approvalStatus: 'pending',
-
     assignedTo: '',
     assignedName: '',
     assignedDesignation: '',
@@ -64,89 +54,57 @@ export default function AdminRiskAssessments() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
-  const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null });
-
-  // REALTIME
+  // Load Data from localStorage
   useEffect(() => {
-    const unsubscribe = subscribeToCollection('riskAssessments', (data) => {
-      setAssessments(data);
-      setFilteredAssessments(data);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    const data = getLocalRiskAssessments();
+    setAssessments(data);
+    setFilteredAssessments(data);
+    setLoading(false);
   }, []);
 
-  // FILTER
-  useEffect(() => {
-    let filtered = assessments;
+  // Filtering
+  const filteredData = useMemo(() => {
+    let result = [...assessments];
 
-    if (filters.status) filtered = filtered.filter(a => a.status === filters.status);
-    if (filters.month) filtered = filtered.filter(a => a.month === parseInt(filters.month));
-    if (filters.year) filtered = filtered.filter(a => a.year === parseInt(filters.year));
+    if (filters.status) result = result.filter(a => a.status === filters.status);
+    if (filters.month) result = result.filter(a => a.month === parseInt(filters.month));
+    if (filters.year) result = result.filter(a => a.year === parseInt(filters.year));
 
-    setFilteredAssessments(filtered);
-  }, [filters, assessments]);
+    return result;
+  }, [assessments, filters]);
+
+  const total = filteredData.length;
+  const open = filteredData.filter(a => a.status === 'open').length;
+  const highRisk = filteredData.filter(a => (a.riskScore || 0) >= 15).length;
 
   const calculateRiskScore = (l, s) => l * s;
-
-  const getRiskLevel = (score) => {
-    if (score <= 5) return 'Low';
-    if (score <= 10) return 'Medium';
-    return 'High';
-  };
+  const getRiskLevel = (score) => score <= 5 ? 'Low' : score <= 10 ? 'Medium' : 'High';
 
   const handleEmployeeSelect = (id) => {
     const emp = staticEmployees.find(e => e.id === id);
-
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       assignedTo: id,
       assignedName: emp?.name || '',
       assignedDesignation: emp?.designation || '',
-    });
+    }));
   };
 
   const openModal = (item = null) => {
     if (item) {
       setEditingAssessment(item);
-      setFormData({
-        ...item,
-      });
+      setFormData({ ...item });
       setImagePreview(item.imageUrl || null);
     } else {
       setEditingAssessment(null);
       setFormData({
-        activity: '',
-        hazard: '',
-        hazardCategory: '',
-        location: '',
-        likelihood: 3,
-        severity: 3,
-
-        existingControls: '',
-        additionalControls: '',
-        controlEffectiveness: '',
-        residualRisk: '',
-
-        ppeRequired: '',
-        responsiblePerson: '',
-        legalRequirement: '',
-        riskMethod: '',
-        riskOwner: '',
-
-        status: 'open',
-        reviewDate: '',
-        nextReviewDate: '',
-        approvalStatus: 'pending',
-
-        assignedTo: '',
-        assignedName: '',
-        assignedDesignation: '',
+        activity: '', hazard: '', hazardCategory: '', location: '',
+        likelihood: 3, severity: 3, existingControls: '', additionalControls: '',
+        ppeRequired: '', responsiblePerson: '', status: 'open', reviewDate: '',
+        assignedTo: '', assignedName: '', assignedDesignation: '',
       });
       setImagePreview(null);
     }
-
     setImageFile(null);
     setIsModalOpen(true);
   };
@@ -164,7 +122,8 @@ export default function AdminRiskAssessments() {
       let imageUrl = editingAssessment?.imageUrl || '';
 
       if (imageFile) {
-        imageUrl = await uploadImage(imageFile);
+        // You can keep uploadImage if needed, otherwise remove
+        imageUrl = editingAssessment?.imageUrl || '';
       }
 
       const riskScore = calculateRiskScore(formData.likelihood, formData.severity);
@@ -175,28 +134,30 @@ export default function AdminRiskAssessments() {
         riskScore,
         riskLevel,
         imageUrl,
-        createdBy: 'admin-001',
         createdAt: new Date().toISOString(),
       };
 
       if (editingAssessment) {
-        await updateDocument('riskAssessments', editingAssessment.id, payload);
+        updateLocalRiskAssessment(editingAssessment.id, payload);
       } else {
-        await addDocument('riskAssessments', payload);
+        addLocalRiskAssessment(payload);
       }
 
-      setIsModalOpen(false);
-      setImageFile(null);
-      setImagePreview(null);
-      setEditingAssessment(null);
+      const updatedData = getLocalRiskAssessments();
+      setAssessments(updatedData);
+      setFilteredAssessments(updatedData);
 
+      setIsModalOpen(false);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const handleDelete = async () => {
-    await deleteDocument('riskAssessments', deleteModal.id);
+  const handleDelete = () => {
+    deleteLocalRiskAssessment(deleteModal.id);
+    const updatedData = getLocalRiskAssessments();
+    setAssessments(updatedData);
+    setFilteredAssessments(updatedData);
     setDeleteModal({ isOpen: false, id: null });
   };
 
@@ -220,20 +181,37 @@ export default function AdminRiskAssessments() {
 
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-[28px] font-bold">Risk Assessments</h1>
-          <p className="text-gray-500 text-sm">HSE Risk Management & Hazard Control System</p>
+          <h1 className="text-3xl font-bold">Risk Assessments</h1>
+          <p className="text-gray-500">HSE Risk Management & Hazard Control System</p>
         </div>
-
-        <Button onClick={() => openModal()}>
-          + New Risk Assessment
-        </Button>
+        <Button onClick={() => openModal()}>+ New Risk Assessment</Button>
       </div>
 
       <FilterBar filters={filters} onFilterChange={setFilters} />
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div className="card p-6 rounded-3xl flex items-center gap-4">
+          <div className="text-5xl">📊</div>
+          <div><p className="text-gray-500">Total</p><p className="text-4xl font-bold">{total}</p></div>
+        </div>
+        <div className="card p-6 rounded-3xl flex items-center gap-4">
+          <div className="text-5xl">🔴</div>
+          <div><p className="text-gray-500">Open</p><p className="text-4xl font-bold text-orange-600">{open}</p></div>
+        </div>
+        <div className="card p-6 rounded-3xl flex items-center gap-4">
+          <div className="text-5xl">⚠️</div>
+          <div><p className="text-gray-500">High Risk</p><p className="text-4xl font-bold text-red-600">{highRisk}</p></div>
+        </div>
+        <div className="card p-6 rounded-3xl flex items-center gap-4">
+          <div className="text-5xl">✅</div>
+          <div><p className="text-gray-500">Closed</p><p className="text-4xl font-bold text-green-600">{total - open}</p></div>
+        </div>
+      </div>
+
       <Table
         columns={columns}
-        data={filteredAssessments}
+        data={filteredData}
         actions={[
           { id: 'edit', label: 'Edit' },
           { id: 'delete', label: 'Delete' },
@@ -268,18 +246,8 @@ export default function AdminRiskAssessments() {
           />
 
           <div className="grid grid-cols-2 gap-6">
-            <input
-              placeholder="Activity"
-              value={formData.activity}
-              onChange={(e) => setFormData({ ...formData, activity: e.target.value })}
-              className="w-full px-4 py-3 border rounded-xl"
-            />
-            <input
-              placeholder="Location"
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              className="w-full px-4 py-3 border rounded-xl"
-            />
+            <input placeholder="Activity" value={formData.activity} onChange={(e) => setFormData({ ...formData, activity: e.target.value })} className="w-full px-4 py-3 border rounded-xl" />
+            <input placeholder="Location" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} className="w-full px-4 py-3 border rounded-xl" />
           </div>
 
           <textarea
@@ -367,18 +335,13 @@ export default function AdminRiskAssessments() {
           {/* IMAGE UI */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Upload Risk Image</label>
-            <div
-              className="border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-2xl p-8 text-center transition-colors cursor-pointer bg-gray-50"
-              onClick={() => document.getElementById('fileUpload').click()}
-            >
+            <div 
+            className="border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-2xl p-8 text-center cursor-pointer" onClick={() => document.getElementById('fileUpload').click()}>
               <input id="fileUpload" type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
               <p className="text-gray-600">📸 Click to upload risk image</p>
               <p className="text-xs text-gray-400 mt-1">PNG, JPG (Max 5MB)</p>
             </div>
-
-            {imagePreview && (
-              <img src={imagePreview} className="mt-4 mx-auto max-h-72 rounded-xl shadow" />
-            )}
+            {imagePreview && <img src={imagePreview} className="mt-4 max-h-72 rounded-xl" />}
           </div>
 
         </div>

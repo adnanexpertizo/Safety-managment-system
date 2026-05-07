@@ -1,27 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  createReport,
-  updateReport,
-  deleteReport,
-  subscribeToReports,
-  uploadImage
-} from '@/lib/firebase';
+import { getLocalReports, addLocalReport, updateLocalReport, deleteLocalReport, getLocalUsers } from '@/lib/localStorage';
 
 import FilterBar from '@/components/FilterBar';
 import Table from '@/components/Table';
 import Button from '@/components/Button';
 import Modal from '@/components/Modal';
 import CustomSelect from '@/components/CustomSelect';
-
-const staticEmployees = [
-  { id: 'emp1', name: 'John Smith', designation: 'Safety Officer' },
-  { id: 'emp2', name: 'Adnan Rafiq', designation: 'HSE Manager' },
-  { id: 'emp3', name: 'Muhammad Danish', designation: 'Supervisor' },
-  { id: 'emp4', name: 'Abdullah Naseer', designation: 'Technician' },
-  { id: 'emp5', name: 'Izhaan Saqib', designation: 'Safety Coordinator' },
-];
 
 export default function AdminReports() {
   const [reports, setReports] = useState([]);
@@ -32,7 +18,6 @@ export default function AdminReports() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingReport, setEditingReport] = useState(null);
 
-  // Status Change Modal
   const [statusModal, setStatusModal] = useState({ isOpen: false, report: null, newStatus: '' });
   const [statusNote, setStatusNote] = useState('');
   const [statusImage, setStatusImage] = useState(null);
@@ -56,17 +41,14 @@ export default function AdminReports() {
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, reportId: null });
 
-  // Realtime Listener
+  const staticEmployees = getLocalUsers();
+
   useEffect(() => {
-    const unsubscribe = subscribeToReports((data) => {
-      setReports(data || []);
-      setFilteredReports(data || []);
-      setLoading(false);
-    });
-    return () => unsubscribe();
+    const data = getLocalReports();
+    setReports(data);
+    setFilteredReports(data);
   }, []);
 
   // Filter
@@ -146,20 +128,26 @@ export default function AdminReports() {
   const handleSubmit = async () => {
     try {
       let imageUrl = editingReport?.imageUrl || '';
-      if (imageFile) imageUrl = await uploadImage(imageFile);
+      if (imageFile) {
+        // Keep your upload logic if needed later
+        imageUrl = 'local-image-placeholder';
+      }
 
       const reportData = {
         ...formData,
         imageUrl,
         updatedAt: new Date().toISOString(),
-        ...(editingReport ? {} : { createdAt: new Date().toISOString(), createdBy: 'admin-001' })
       };
 
       if (editingReport) {
-        await updateReport(editingReport.id, reportData);
+        updateLocalReport(editingReport.id, reportData);
       } else {
-        await createReport(reportData);
+        addLocalReport(reportData);
       }
+
+      const refreshed = getLocalReports();
+      setReports(refreshed);
+      setFilteredReports(refreshed);
       setIsModalOpen(false);
     } catch (err) {
       console.error(err);
@@ -177,36 +165,19 @@ export default function AdminReports() {
 
   const handleStatusChange = async () => {
     if (!statusModal.report) return;
-
-    try {
-      let evidenceUrl = '';
-      if (statusImage) evidenceUrl = await uploadImage(statusImage);
-
-      const history = statusModal.report.statusHistory || [];
-      history.push({
-        status: statusModal.newStatus,
-        date: statusDate,
-        note: statusNote,
-        evidence: evidenceUrl,
-        changedBy: 'admin-001',
-        changedAt: new Date().toISOString()
-      });
-
-      await updateReport(statusModal.report.id, {
-        status: statusModal.newStatus,
-        statusHistory: history,
-        updatedAt: new Date().toISOString()
-      });
-
-      setStatusModal({ isOpen: false, report: null, newStatus: '' });
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update status");
-    }
+    // Simplified for localStorage
+    updateLocalReport(statusModal.report.id, { status: statusModal.newStatus });
+    const refreshed = getLocalReports();
+    setReports(refreshed);
+    setFilteredReports(refreshed);
+    setStatusModal({ isOpen: false, report: null, newStatus: '' });
   };
 
-  const handleDelete = async () => {
-    await deleteReport(deleteModal.reportId);
+  const handleDelete = () => {
+    deleteLocalReport(deleteModal.reportId);
+    const refreshed = getLocalReports();
+    setReports(refreshed);
+    setFilteredReports(refreshed);
     setDeleteModal({ isOpen: false, reportId: null });
   };
 

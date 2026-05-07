@@ -127,28 +127,29 @@ export default function CorrectiveActionsPage() {
         </div>
 
         {/* FILTERS */}
-        <div className="flex flex-col sm:flex-row gap-3 w-full">
-          <CustomSelect
-            options={[
-              { value: 'All', label: 'All Status' },
-              { value: 'Pending', label: 'Pending' },
-              { value: 'In Progress', label: 'In Progress' },
-              { value: 'Completed', label: 'Completed' },
-            ]}
-            value={statusFilter}
-            onChange={setStatusFilter}
-          />
 
-          <CustomSelect
-            options={[
-              { value: 'All', label: 'All Departments' },
-              { value: 'Electrical', label: 'Electrical' },
-              { value: 'Mechanical', label: 'Mechanical' },
-            ]}
-            value={departmentFilter}
-            onChange={setDepartmentFilter}
-          />
-        </div>
+      </div>
+      <div className="flex flex-col sm:flex-row gap-3 w-full">
+        <CustomSelect
+          options={[
+            { value: 'All', label: 'All Status' },
+            { value: 'Pending', label: 'Pending' },
+            { value: 'In Progress', label: 'In Progress' },
+            { value: 'Completed', label: 'Completed' },
+          ]}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
+
+        <CustomSelect
+          options={[
+            { value: 'All', label: 'All Departments' },
+            { value: 'Electrical', label: 'Electrical' },
+            { value: 'Mechanical', label: 'Mechanical' },
+          ]}
+          value={departmentFilter}
+          onChange={setDepartmentFilter}
+        />
       </div>
 
       {/* KPI CARDS (MATCH YOUR DASHBOARD STYLE) */}

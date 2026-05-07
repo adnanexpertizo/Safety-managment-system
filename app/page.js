@@ -1,141 +1,135 @@
 'use client';
 
-import { useUser } from '@/context/UserContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { getLocalReports } from '@/lib/localStorage';
 import Button from '@/components/Button';
 
-export default function Home() {
-  const { user, loginAsAdmin, loginAsOfficer } = useUser();
-  const router = useRouter();
+export default function AdminDashboard() {
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [recentReports, setRecentReports] = useState([]);
 
   useEffect(() => {
-    if (user?.role === 'ADMIN') {
-      router.push('/admin');
-    } else if (user?.role === 'OFFICER') {
-      router.push('/officer');
-    }
-  }, [user, router]);
+    const reportsData = getLocalReports();
+    setReports(reportsData);
 
-  const handleLoginAsAdmin = () => {
-    loginAsAdmin();
-    router.push('/admin');
-  };
+    setRecentReports(
+      [...reportsData]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5)
+    );
 
-  const handleLoginAsOfficer = () => {
-    loginAsOfficer();
-    router.push('/officer');
-  };
+    setLoading(false);
+  }, []);
+
+  const stats = useMemo(() => {
+    return {
+      totalReports: reports.length,
+      incidents: reports.filter(r => r.type === 'incident').length,
+      nearMisses: reports.filter(r => r.type === 'near_miss').length,
+      hazards: reports.filter(r => r.type === 'hazard').length,
+    };
+  }, [reports]);
+
+  const openReports = reports.filter(r => (r.status || '').toLowerCase() === 'open').length;
+  const resolvedReports = reports.filter(r => (r.status || '').toLowerCase() === 'resolved').length;
+  const closedReports = reports.filter(r => (r.status || '').toLowerCase() === 'closed').length;
+
+  if (loading) {
+    return <p className="p-10 text-center">Loading dashboard...</p>;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary mb-6">
-            <span className="text-[28px]">🛡️</span>
-          </div>
-          <h1 className="text-[36px] md:text-[44px] font-bold text-foreground mb-4 text-balance">
-            Safety Management System
-          </h1>
-          <p className="text-[16px] text-muted-foreground max-w-lg mx-auto leading-relaxed text-pretty">
-            Comprehensive workplace safety incident and risk management platform. Report hazards,
-            track incidents, and protect your team.
-          </p>
+    <div>
+
+      {/* HEADER */}
+      <div className="mb-8">
+        <h1 className="text-[28px] font-bold">Enterprise Safety Dashboard</h1>
+        <p className="text-muted-foreground">
+          Operational intelligence & risk monitoring system
+        </p>
+      </div>
+
+      {/* KPI ROW */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <StatCard label="Total Reports" value={stats.totalReports} color="text-primary" />
+        <StatCard label="Incidents" value={stats.incidents} color="text-red-600" />
+        <StatCard label="Near Misses" value={stats.nearMisses} color="text-yellow-600" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <StatCard label="Hazards" value={stats.hazards} color="text-orange-600" />
+        <StatCard label="High Risk Cases" value={0} color="text-red-600" />
+        <StatCard label="Risk Assessments" value={0} color="text-primary" />
+      </div>
+
+      {/* INTELLIGENCE ROW */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-card border border-border rounded-lg p-6">
+          <p className="text-sm text-muted-foreground">Weekly Trend</p>
+          <p className="text-2xl font-bold mt-2">{reports.length}</p>
+          <p className="text-xs text-muted-foreground mt-1">Growth: 0%</p>
         </div>
 
-        {/* Role Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Admin Card */}
-          <div className="bg-card border-2 border-border rounded-lg p-8 hover:border-primary transition-colors">
-            <div className="text-[32px] mb-4">👨‍💼</div>
-            <h2 className="text-[20px] font-bold text-foreground mb-2">Admin Dashboard</h2>
-            <p className="text-[14px] text-muted-foreground mb-6 leading-relaxed">
-              Access comprehensive dashboards, manage all reports across the organization, view risk
-              assessments, and analyze safety trends.
-            </p>
-            <div className="space-y-3 text-[13px] text-muted-foreground mb-6">
-              <div className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span>View all incidents and near misses</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span>Manage personnel and assignments</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span>Access detailed safety analytics</span>
-              </div>
-            </div>
-            <Button variant="primary" size="lg" onClick={handleLoginAsAdmin} className="w-full">
-              Enter as Admin
-            </Button>
-          </div>
-
-          {/* Officer Card */}
-          <div className="bg-card border-2 border-border rounded-lg p-8 hover:border-secondary transition-colors">
-            <div className="text-[32px] mb-4">👷</div>
-            <h2 className="text-[20px] font-bold text-foreground mb-2">Officer Dashboard</h2>
-            <p className="text-[14px] text-muted-foreground mb-6 leading-relaxed">
-              Submit safety reports, conduct risk assessments, track your contributions, and stay
-              informed about workplace safety.
-            </p>
-            <div className="space-y-3 text-[13px] text-muted-foreground mb-6">
-              <div className="flex items-start gap-2">
-                <span className="text-secondary">✓</span>
-                <span>Submit incident and hazard reports</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-secondary">✓</span>
-                <span>Conduct risk assessments</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-secondary">✓</span>
-                <span>Track your submissions</span>
-              </div>
-            </div>
-            <Button variant="secondary" size="lg" onClick={handleLoginAsOfficer} className="w-full">
-              Enter as Officer
-            </Button>
-          </div>
+        <div className="bg-card border border-border rounded-lg p-6">
+          <p className="text-sm text-muted-foreground">Open Cases</p>
+          <p className="text-2xl font-bold mt-2 text-red-600">{openReports}</p>
         </div>
 
-        {/* Features Grid */}
-        <div className="bg-card border border-border rounded-lg p-8 mb-8">
-          <h3 className="text-[18px] font-bold text-foreground mb-6">Key Features</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <p className="text-[18px] mb-2">📋</p>
-              <p className="font-medium text-foreground text-[15px] mb-1">Report Management</p>
-              <p className="text-[13px] text-muted-foreground">
-                Easily submit and track incidents, near misses, and hazards with detailed documentation.
-              </p>
-            </div>
-            <div>
-              <p className="text-[18px] mb-2">⚠️</p>
-              <p className="font-medium text-foreground text-[15px] mb-1">Risk Assessment</p>
-              <p className="text-[13px] text-muted-foreground">
-                Conduct comprehensive risk assessments with automatic risk score calculation.
-              </p>
-            </div>
-            <div>
-              <p className="text-[18px] mb-2">📊</p>
-              <p className="font-medium text-foreground text-[15px] mb-1">Analytics & Insights</p>
-              <p className="text-[13px] text-muted-foreground">
-                Access real-time dashboards and detailed analysis of safety trends and metrics.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center">
-          <p className="text-[13px] text-muted-foreground">
-            Safety Management System • Protecting your workplace, one report at a time
+        <div className="bg-card border border-border rounded-lg p-6">
+          <p className="text-sm text-muted-foreground">Resolved / Closed</p>
+          <p className="text-2xl font-bold mt-2 text-green-600">
+            {resolvedReports + closedReports}
           </p>
         </div>
       </div>
+
+      {/* ACTION CENTER */}
+      <div className="bg-card border border-border rounded-lg p-6 mb-8">
+        <h2 className="text-[18px] font-bold mb-4">🚨 Action Required</h2>
+        <div className="space-y-2 text-sm">
+          <p>⚠ High Risk Open Cases: <span className="font-bold text-red-600">0</span></p>
+          <p>⏱ Overdue Reports: <span className="font-bold text-orange-600">0</span></p>
+          <p>📊 System Status: <span className="font-bold text-green-600">Stable</span></p>
+        </div>
+      </div>
+
+      {/* RECENT REPORTS */}
+      <div className="bg-card border border-border rounded-lg p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-[18px] font-bold">Recent Reports</h2>
+          <Link href="/admin/reports">
+            <Button variant="outline" size="sm">View All</Button>
+          </Link>
+        </div>
+
+        <div className="space-y-3">
+          {recentReports.map((report) => (
+            <div key={report.id} className="flex justify-between p-4 bg-muted rounded-md">
+              <div>
+                <p className="font-medium">{report.title || report.description?.substring(0, 60)}</p>
+                <p className="text-xs text-muted-foreground">
+                  {report.type} • {report.status}
+                </p>
+              </div>
+              <Link href={`/admin/reports/${report.id}`}>
+                <Button variant="ghost" size="sm">View</Button>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }
+
+// StatCard Component (Added because it was missing in original)
+const StatCard = ({ label, value, color }) => (
+  <div className="bg-card border border-border rounded-lg p-6">
+    <p className="text-[13px] text-muted-foreground mb-2">{label}</p>
+    <p className={`text-[32px] font-bold ${color}`}>{value}</p>
+  </div>
+);

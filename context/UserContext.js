@@ -16,7 +16,7 @@ export function UserProvider({ children }) {
       department: 'Operations',
       photo: null,
     });
-  };
+  };  
 
   const loginAsAdmin = () => {
     setUser({
