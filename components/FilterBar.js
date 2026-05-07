@@ -10,11 +10,12 @@ export default function FilterBar({
   const { user } = useUser();
   const isAdmin = user?.role === 'ADMIN';
 
-  const typeOptions = [
-    { value: '', label: 'All Types' },
-    { value: 'incident', label: 'Incidents' },
-    { value: 'near_miss', label: 'Near Misses' },
-    { value: 'hazard', label: 'Hazards' },
+  const categoryOptions = [
+    { value: '', label: 'All Categories' },
+    { value: 'Physical', label: 'Physical' },
+    { value: 'Chemical', label: 'Chemical' },
+    { value: 'Electrical', label: 'Electrical' },
+    { value: 'Fire', label: 'Fire' },
   ];
 
   const statusOptions = [
@@ -24,33 +25,28 @@ export default function FilterBar({
     { value: 'closed', label: 'Closed' },
   ];
 
-  // ✅ FIXED: use IDs (important for filtering)
   const employeeOptions = [
     { value: '', label: 'All Employees' },
     { value: 'my', label: 'My Reports' },
-
-    { value: 'emp1', label: 'John Smith' },
-    { value: 'emp2', label: 'Adnan Rafiq' },
-    { value: 'emp3', label: 'Muhammad Danish' },
-    { value: 'emp4', label: 'Abdullah Naseer' },
-    { value: 'emp5', label: 'Izhaan Saqib' },
+    ...getLocalUsers().map(emp => ({
+      value: emp.id,
+      label: emp.name,
+    })),
   ];
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
-
-      {/* ✅ FLEX WRAP + MIN WIDTH FIX */}
       <div className="flex flex-wrap gap-4">
 
-        {/* Report Type */}
+        {/* Category Filter */}
         <div className="min-w-[220px] flex-1">
           <CustomSelect
-            label="Report Type"
-            value={filters.type || ''}
+            label="Category"
+            value={filters.category || ''}
             onChange={(value) =>
-              onFilterChange({ ...filters, type: value || null })
+              onFilterChange({ ...filters, category: value || '' })
             }
-            options={typeOptions}
+            options={categoryOptions}
           />
         </div>
 
@@ -60,20 +56,20 @@ export default function FilterBar({
             label="Status"
             value={filters.status || ''}
             onChange={(value) =>
-              onFilterChange({ ...filters, status: value || null })
+              onFilterChange({ ...filters, status: value || '' })
             }
             options={statusOptions}
           />
         </div>
 
-        {/* Employee */}
+        {/* Employee Filter */}
         {isAdmin && (
           <div className="min-w-[220px] flex-1">
             <CustomSelect
               label="Employee"
-              value={filters.userId || ''}
+              value={filters.assignedTo || ''}
               onChange={(value) =>
-                onFilterChange({ ...filters, userId: value || null })
+                onFilterChange({ ...filters, assignedTo: value || '' })
               }
               options={employeeOptions}
             />
@@ -87,7 +83,7 @@ export default function FilterBar({
           </label>
           <input
             type="text"
-            placeholder="Search reports..."
+            placeholder="Search activity, hazard or location..."
             value={filters.search || ''}
             onChange={(e) =>
               onFilterChange({ ...filters, search: e.target.value })
@@ -100,4 +96,14 @@ export default function FilterBar({
       </div>
     </div>
   );
+}
+
+// Helper to get fresh users (optional, safe to call here)
+function getLocalUsers() {
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(localStorage.getItem('safety_users')) || [];
+  } catch {
+    return [];
+  }
 }
