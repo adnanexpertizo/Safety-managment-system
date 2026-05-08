@@ -5,6 +5,7 @@ import FilterBar from '@/components/FilterBar';
 import Table from '@/components/Table';
 import Button from '@/components/Button';
 import Modal from '@/components/Modal';
+import SummaryCards  from '@/components/SummaryCards';
 import CustomSelect from '@/components/CustomSelect';
 
 import {
@@ -207,39 +208,22 @@ export default function AdminRiskAssessments() {
         <Button onClick={() => openModal()}>+ New Risk Assessment</Button>
       </div>
 
-      <FilterBar filters={filters} onFilterChange={setFilters} />
+      <FilterBar 
+        filters={filters} 
+        onFilterChange={setFilters}
+        showCategory={true}           
+        showReportType={false}
+      />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-        <div className="card p-6 rounded-3xl flex items-center gap-4">
-          <div className="text-5xl">📊</div>
-          <div>
-            <p className="text-gray-500">Total</p>
-            <p className="text-4xl font-bold">{total}</p>
-          </div>
-        </div>
-        <div className="card p-6 rounded-3xl flex items-center gap-4">
-          <div className="text-5xl">🔴</div>
-          <div>
-            <p className="text-gray-500">Open</p>
-            <p className="text-4xl font-bold text-orange-600">{open}</p>
-          </div>
-        </div>
-        <div className="card p-6 rounded-3xl flex items-center gap-4">
-          <div className="text-5xl">⚠️</div>
-          <div>
-            <p className="text-gray-500">High Risk</p>
-            <p className="text-4xl font-bold text-red-600">{highRisk}</p>
-          </div>
-        </div>
-        <div className="card p-6 rounded-3xl flex items-center gap-4">
-          <div className="text-5xl">✅</div>
-          <div>
-            <p className="text-gray-500">Closed</p>
-            <p className="text-4xl font-bold text-green-600">{total - open}</p>
-          </div>
-        </div>
-      </div>
+      <SummaryCards
+        cards={[
+          { icon: "📊", label: "Total", value: total },
+          { icon: "🔴", label: "Open", value: open, color: "text-orange-600" },
+          { icon: "⚠️", label: "High Risk", value: highRisk, color: "text-red-600" },
+          { icon: "✅", label: "Closed", value: total - open, color: "text-green-600" },
+        ]}
+      />
 
       <Table
         columns={columns}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getLocalReports, addLocalReport, updateLocalReport, deleteLocalReport, getLocalUsers } from '@/lib/localStorage';
 
 import FilterBar from '@/components/FilterBar';
@@ -8,15 +8,22 @@ import Table from '@/components/Table';
 import Button from '@/components/Button';
 import Modal from '@/components/Modal';
 import CustomSelect from '@/components/CustomSelect';
+import  SummaryCards from '@/components/SummaryCards';
 
 export default function AdminReports() {
   const [reports, setReports] = useState([]);
-  const [filteredReports, setFilteredReports] = useState([]);
-  const [filters, setFilters] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [filters, setFilters] = useState({
+    type: '',
+    status: '',
+    assignedTo: '',
+    search: '',
+  });
+  const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingReport, setEditingReport] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, reportId: null });
 
   const [statusModal, setStatusModal] = useState({ isOpen: false, report: null, newStatus: '' });
   const [statusNote, setStatusNote] = useState('');
@@ -41,29 +48,51 @@ export default function AdminReports() {
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [deleteModal, setDeleteModal] = useState({ isOpen: false, reportId: null });
 
-  const staticEmployees = getLocalUsers();
-
+  // Load Data
   useEffect(() => {
-    const data = getLocalReports();
-    setReports(data);
-    setFilteredReports(data);
+    const reportData = getLocalReports();
+    const userData = getLocalUsers();
+
+    setReports(reportData);
+    setUsers(Array.isArray(userData) ? userData : []);
+    setLoading(false);
   }, []);
 
-  // Filter
-  useEffect(() => {
-    let filtered = reports;
-    if (filters.status) filtered = filtered.filter(r => r.status === filters.status);
-    if (filters.type) filtered = filtered.filter(r => r.type === filters.type);
+  // Enhanced Filtering
+  const filteredReports = useMemo(() => {
+    let filtered = [...reports];
+
+    if (filters.type) {
+      filtered = filtered.filter(r => r.type === filters.type);
+    }
+    if (filters.status) {
+      filtered = filtered.filter(r => r.status === filters.status);
+    }
+    if (filters.assignedTo) {
+      if (filters.assignedTo === 'my') {
+        // Add your own logic here if needed
+      } else {
+        filtered = filtered.filter(r => r.assignedTo === filters.assignedTo);
+      }
+    }
     if (filters.search) {
       const term = filters.search.toLowerCase();
       filtered = filtered.filter(r =>
-        r.description?.toLowerCase().includes(term) || r.location?.toLowerCase().includes(term)
+        r.description?.toLowerCase().includes(term) ||
+        r.location?.toLowerCase().includes(term) ||
+        r.assignedName?.toLowerCase().includes(term) ||
+        r.type?.toLowerCase().includes(term)
       );
     }
-    setFilteredReports(filtered);
-  }, [filters, reports]);
+
+    return filtered;
+  }, [reports, filters]);
+
+  // Summary Stats
+  const total = filteredReports.length;
+  const open = filteredReports.filter(r => r.status === 'open').length;
+  const closed = filteredReports.filter(r => r.status === 'closed').length;
 
   const openModal = (report = null) => {
     if (report) {
@@ -108,13 +137,13 @@ export default function AdminReports() {
   };
 
   const handleEmployeeSelect = (employeeId) => {
-    const emp = staticEmployees.find(e => e.id === employeeId);
-    setFormData({
-      ...formData,
+    const emp = users.find(e => e.id === employeeId);
+    setFormData(prev => ({
+      ...prev,
       assignedTo: employeeId,
       assignedName: emp?.name || '',
       assignedDesignation: emp?.designation || '',
-    });
+    }));
   };
 
   const handleImageSelect = (e) => {
@@ -125,37 +154,24 @@ export default function AdminReports() {
     }
   };
 
-  const handleSubmit = async () => {
-    try {
-      let imageUrl = editingReport?.imageUrl || '';
-      if (imageFile) {
-        // Keep your upload logic if needed later
-        imageUrl = 'local-image-placeholder';
-      }
+  const handleSubmit = () => {
+    const reportData = {
+      ...formData,
+      imageUrl: editingReport?.imageUrl || 'local-image-placeholder',
+      updatedAt: new Date().toISOString(),
+    };
 
-      const reportData = {
-        ...formData,
-        imageUrl,
-        updatedAt: new Date().toISOString(),
-      };
-
-      if (editingReport) {
-        updateLocalReport(editingReport.id, reportData);
-      } else {
-        addLocalReport(reportData);
-      }
-
-      const refreshed = getLocalReports();
-      setReports(refreshed);
-      setFilteredReports(refreshed);
-      setIsModalOpen(false);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to save report");
+    if (editingReport) {
+      updateLocalReport(editingReport.id, reportData);
+    } else {
+      addLocalReport(reportData);
     }
+
+    const refreshed = getLocalReports();
+    setReports(refreshed);
+    setIsModalOpen(false);
   };
 
-  // Status Change
   const openStatusModal = (report, newStatus) => {
     setStatusModal({ isOpen: true, report, newStatus });
     setStatusNote('');
@@ -163,13 +179,11 @@ export default function AdminReports() {
     setStatusDate(new Date().toISOString().slice(0, 16));
   };
 
-  const handleStatusChange = async () => {
+  const handleStatusChange = () => {
     if (!statusModal.report) return;
-    // Simplified for localStorage
     updateLocalReport(statusModal.report.id, { status: statusModal.newStatus });
     const refreshed = getLocalReports();
     setReports(refreshed);
-    setFilteredReports(refreshed);
     setStatusModal({ isOpen: false, report: null, newStatus: '' });
   };
 
@@ -177,7 +191,6 @@ export default function AdminReports() {
     deleteLocalReport(deleteModal.reportId);
     const refreshed = getLocalReports();
     setReports(refreshed);
-    setFilteredReports(refreshed);
     setDeleteModal({ isOpen: false, reportId: null });
   };
 
@@ -203,8 +216,25 @@ export default function AdminReports() {
         <Button onClick={() => openModal()}>+ New Report</Button>
       </div>
 
-      <FilterBar filters={filters} onFilterChange={setFilters} />
+      {/* Filter Bar */}
+      <FilterBar 
+        filters={filters} 
+        onFilterChange={setFilters}
+        showReportType={true}
+        showCategory={false}
+      />
 
+      {/* Summary Cards */}
+    {/* Summary Cards */}
+<SummaryCards
+  cards={[
+    { icon: "📊", label: "Total Reports", value: total },
+    { icon: "🔴", label: "Open", value: open, color: "text-orange-600" },
+    { icon: "✅", label: "Closed", value: closed, color: "text-green-600" },
+    { icon: "⚠️", label: "In Progress", value: filteredReports.filter(r => r.status === 'in-progress').length, color: "text-blue-600" },
+  ]}
+/>
+      {/* Table */}
       <Table
         columns={columns}
         data={filteredReports}
@@ -235,61 +265,95 @@ export default function AdminReports() {
             label="Assign To Employee"
             value={formData.assignedTo}
             onChange={handleEmployeeSelect}
-            options={staticEmployees.map(emp => ({
+            options={users.map(emp => ({
               value: emp.id,
               label: `${emp.name} - ${emp.designation}`
             }))}
-            placeholder="Select Employee"
           />
 
           <div className="grid grid-cols-2 gap-6">
-            <CustomSelect label="Report Type" value={formData.type} onChange={(v) => setFormData({ ...formData, type: v })}
-              options={[{value:'incident',label:'Incident'},{value:'near_miss',label:'Near Miss'},{value:'hazard',label:'Hazard'}]} />
+            <CustomSelect 
+              label="Report Type" 
+              value={formData.type} 
+              onChange={(v) => setFormData({ ...formData, type: v })}
+              options={[
+                {value:'incident', label:'Incident'},
+                {value:'near_miss', label:'Near Miss'},
+                {value:'hazard', label:'Hazard'}
+              ]} 
+            />
 
-            <CustomSelect label="Severity" value={formData.severity} onChange={(v) => setFormData({ ...formData, severity: v })}
-              options={[{value:'low',label:'Low'},{value:'medium',label:'Medium'},{value:'high',label:'High'}]} />
+            <CustomSelect 
+              label="Severity" 
+              value={formData.severity} 
+              onChange={(v) => setFormData({ ...formData, severity: v })}
+              options={[
+                {value:'low', label:'Low'},
+                {value:'medium', label:'Medium'},
+                {value:'high', label:'High'}
+              ]} 
+            />
           </div>
 
+          {/* Rest of the form remains same as you provided */}
           <div className="grid grid-cols-2 gap-6">
-            <CustomSelect label="Potential Severity" value={formData.potentialSeverity} onChange={(v) => setFormData({ ...formData, potentialSeverity: v })}
-              options={[{value:'low',label:'Low'},{value:'medium',label:'Medium'},{value:'high',label:'High'}]} />
+            <CustomSelect 
+              label="Potential Severity" 
+              value={formData.potentialSeverity} 
+              onChange={(v) => setFormData({ ...formData, potentialSeverity: v })}
+              options={[
+                {value:'low', label:'Low'},
+                {value:'medium', label:'Medium'},
+                {value:'high', label:'High'}
+              ]} 
+            />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Date & Time of Incident</label>
-              <input type="datetime-local" value={formData.dateOfIncident} onChange={(e) => setFormData({ ...formData, dateOfIncident: e.target.value })}
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none" />
+              <input 
+                type="datetime-local" 
+                value={formData.dateOfIncident} 
+                onChange={(e) => setFormData({ ...formData, dateOfIncident: e.target.value })}
+                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none" 
+              />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Location</label>
-            <input placeholder="Exact location" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none" />
+            <input 
+              placeholder="Exact location" 
+              value={formData.location} 
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none" 
+            />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
-            <textarea placeholder="Detailed description..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={4}
-              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none resize-y" />
+            <textarea 
+              placeholder="Detailed description..." 
+              value={formData.description} 
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })} 
+              rows={4}
+              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none resize-y" 
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Witnesses</label>
-              <textarea placeholder="Witness names" value={formData.witnesses} onChange={(e) => setFormData({ ...formData, witnesses: e.target.value })} rows={2}
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none" />
+              <textarea placeholder="Witness names" value={formData.witnesses} onChange={(e) => setFormData({ ...formData, witnesses: e.target.value })} rows={2} className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Immediate Actions</label>
-              <textarea placeholder="Immediate actions taken" value={formData.immediateActions} onChange={(e) => setFormData({ ...formData, immediateActions: e.target.value })} rows={2}
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none" />
+              <textarea placeholder="Immediate actions taken" value={formData.immediateActions} onChange={(e) => setFormData({ ...formData, immediateActions: e.target.value })} rows={2} className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none" />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Recommended Actions</label>
-            <textarea placeholder="Recommended corrective actions" value={formData.recommendedActions} onChange={(e) => setFormData({ ...formData, recommendedActions: e.target.value })} rows={3}
-              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none" />
+            <textarea placeholder="Recommended corrective actions" value={formData.recommendedActions} onChange={(e) => setFormData({ ...formData, recommendedActions: e.target.value })} rows={3} className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none" />
           </div>
 
           <div>
@@ -318,8 +382,7 @@ export default function AdminReports() {
         <div className="space-y-4">
           <input type="datetime-local" value={statusDate} onChange={(e) => setStatusDate(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-xl" />
 
-          <textarea placeholder="Notes / Reason for status change" value={statusNote} onChange={(e) => setStatusNote(e.target.value)} rows={4}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl" />
+          <textarea placeholder="Notes / Reason for status change" value={statusNote} onChange={(e) => setStatusNote(e.target.value)} rows={4} className="w-full px-4 py-3 border border-gray-300 rounded-xl" />
 
           <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer" onClick={() => document.getElementById('statusImg').click()}>
             <input id="statusImg" type="file" accept="image/*" onChange={(e) => setStatusImage(e.target.files[0])} className="hidden" />

@@ -6,10 +6,23 @@ import CustomSelect from './CustomSelect';
 export default function FilterBar({
   filters = {},
   onFilterChange,
+  showReportType = false,     // For Reports Page
+  showCategory = false,       // For Risk Assessments Page
+  showEmployee = true,
+  showSearch = true,
 }) {
   const { user } = useUser();
   const isAdmin = user?.role === 'ADMIN';
 
+  // Report Type Options (Used in Reports Page)
+  const reportTypeOptions = [
+    { value: '', label: 'All Types' },
+    { value: 'incident', label: 'Incidents' },
+    { value: 'near_miss', label: 'Near Misses' },
+    { value: 'hazard', label: 'Hazards' },
+  ];
+
+  // Category Options (Used in Risk Assessments)
   const categoryOptions = [
     { value: '', label: 'All Categories' },
     { value: 'Physical', label: 'Physical' },
@@ -28,7 +41,7 @@ export default function FilterBar({
   const employeeOptions = [
     { value: '', label: 'All Employees' },
     { value: 'my', label: 'My Reports' },
-    ...getLocalUsers().map(emp => ({
+    ...getLocalUsers().map((emp) => ({
       value: emp.id,
       label: emp.name,
     })),
@@ -38,19 +51,35 @@ export default function FilterBar({
     <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
       <div className="flex flex-wrap gap-4">
 
-        {/* Category Filter */}
-        <div className="min-w-[220px] flex-1">
-          <CustomSelect
-            label="Category"
-            value={filters.category || ''}
-            onChange={(value) =>
-              onFilterChange({ ...filters, category: value || '' })
-            }
-            options={categoryOptions}
-          />
-        </div>
+        {/* Report Type - For Reports Page */}
+        {showReportType && (
+          <div className="min-w-[220px] flex-1">
+            <CustomSelect
+              label="Report Type"
+              value={filters.type || ''}
+              onChange={(value) =>
+                onFilterChange({ ...filters, type: value || '' })
+              }
+              options={reportTypeOptions}
+            />
+          </div>
+        )}
 
-        {/* Status */}
+        {/* Category - For Risk Assessments */}
+        {showCategory && (
+          <div className="min-w-[220px] flex-1">
+            <CustomSelect
+              label="Category"
+              value={filters.category || ''}
+              onChange={(value) =>
+                onFilterChange({ ...filters, category: value || '' })
+              }
+              options={categoryOptions}
+            />
+          </div>
+        )}
+
+        {/* Status - Common */}
         <div className="min-w-[220px] flex-1">
           <CustomSelect
             label="Status"
@@ -63,7 +92,7 @@ export default function FilterBar({
         </div>
 
         {/* Employee Filter */}
-        {isAdmin && (
+        {showEmployee && isAdmin && (
           <div className="min-w-[220px] flex-1">
             <CustomSelect
               label="Employee"
@@ -77,28 +106,29 @@ export default function FilterBar({
         )}
 
         {/* Search */}
-        <div className="min-w-[260px] flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Search
-          </label>
-          <input
-            type="text"
-            placeholder="Search activity, hazard or location..."
-            value={filters.search || ''}
-            onChange={(e) =>
-              onFilterChange({ ...filters, search: e.target.value })
-            }
-            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl 
-            focus:border-blue-600 focus:ring-0 focus:outline-none text-[15px]"
-          />
-        </div>
-
+        {showSearch && (
+          <div className="min-w-[260px] flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Search
+            </label>
+            <input
+              type="text"
+              placeholder="Search..."
+              value={filters.search || ''}
+              onChange={(e) =>
+                onFilterChange({ ...filters, search: e.target.value })
+              }
+              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl 
+              focus:border-blue-600 focus:ring-0 focus:outline-none text-[15px]"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-// Helper to get fresh users (optional, safe to call here)
+// Helper Function
 function getLocalUsers() {
   if (typeof window === 'undefined') return [];
   try {
@@ -106,4 +136,4 @@ function getLocalUsers() {
   } catch {
     return [];
   }
-}
+}   
