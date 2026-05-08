@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
+import { Edit, Trash2 } from 'lucide-react';   // ← Icons Added
+
 import FilterBar from '@/components/FilterBar';
 import Table from '@/components/Table';
 import Button from '@/components/Button';
@@ -56,15 +58,9 @@ export default function AdminTrainings() {
   const filteredTrainings = useMemo(() => {
     let result = [...trainings];
 
-    if (filters.status) {
-      result = result.filter(t => t.status === filters.status);
-    }
-    if (filters.department) {
-      result = result.filter(t => t.department === filters.department);
-    }
-    if (filters.trainerId) {
-      result = result.filter(t => t.trainerId === filters.trainerId);
-    }
+    if (filters.status) result = result.filter(t => t.status === filters.status);
+    if (filters.department) result = result.filter(t => t.department === filters.department);
+    if (filters.trainerId) result = result.filter(t => t.trainerId === filters.trainerId);
     if (filters.search) {
       const term = filters.search.toLowerCase();
       result = result.filter(t =>
@@ -148,52 +144,76 @@ export default function AdminTrainings() {
     { key: 'score', label: 'Score' },
   ];
 
-  if (loading) return <p className="p-10 text-center">Loading trainings...</p>;
+  if (loading) return <p className="p-6 text-center text-lg">Loading trainings...</p>;
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Training & Compliance</h1>
-          <p className="text-gray-500">Employee Safety Training Management</p>
+    <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
+      <div className="max-w-screen-2xl mx-auto space-y-6">
+        
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+              Training & Compliance
+            </h1>
+            <p className="text-gray-500 text-sm sm:text-base mt-1">
+              Employee Safety Training Management
+            </p>
+          </div>
+          <Button 
+            onClick={() => openModal()} 
+            className="w-full sm:w-auto px-6 py-3"
+          >
+            + New Training
+          </Button>
         </div>
-        <Button onClick={() => openModal()}>+ New Training</Button>
+
+        {/* FilterBar */}
+        <FilterBar
+          filters={filters}
+          onFilterChange={setFilters}
+          showReportType={false}
+          showCategory={false}
+          customStatusOptions={[
+            { value: '', label: 'All Statuses' },
+            { value: 'Completed', label: 'Completed' },
+            { value: 'Scheduled', label: 'Scheduled' },
+          ]}
+        />
+
+        {/* Summary Cards */}
+        <SummaryCards
+          cards={[
+            { icon: "📊", label: "Total Trainings", value: total },
+            { icon: "✅", label: "Completed", value: completed, color: "text-green-600" },
+            { icon: "⏳", label: "Scheduled", value: scheduled, color: "text-blue-600" },
+            { icon: "📈", label: "Avg Score", value: `${avgScore}%`, color: "text-amber-600" },
+          ]}
+        />
+
+        {/* Table with Icons */}
+        <Table
+          columns={columns}
+          data={filteredTrainings}
+          actions={[
+            { 
+              id: 'edit', 
+              label: 'Edit', 
+              icon: Edit 
+            },
+            { 
+              id: 'delete', 
+              label: 'Delete', 
+              icon: Trash2 
+            },
+          ]}
+          onActionClick={(action, row) => {
+            if (action === 'edit') openModal(row);
+            if (action === 'delete') setDeleteModal({ isOpen: true, id: row.id });
+          }}
+          maxHeight="calc(100vh - 380px)"
+        />
       </div>
-
-      {/* FilterBar with Training Status */}
-      <FilterBar
-        filters={filters}
-        onFilterChange={setFilters}
-        showReportType={false}
-        showCategory={false}
-        customStatusOptions={[
-          { value: '', label: 'All Statuses' },
-          { value: 'Completed', label: 'Completed' },
-          { value: 'Scheduled', label: 'Scheduled' },
-        ]}
-      />
-
-      <SummaryCards
-        cards={[
-          { icon: "📊", label: "Total Trainings", value: total },
-          { icon: "✅", label: "Completed", value: completed, color: "text-green-600" },
-          { icon: "⏳", label: "Scheduled", value: scheduled, color: "text-blue-600" },
-          { icon: "📈", label: "Avg Score", value: `${avgScore}%`, color: "text-amber-600" },
-        ]}
-      />
-
-      <Table
-        columns={columns}
-        data={filteredTrainings}
-        actions={[
-          { id: 'edit', label: 'Edit' },
-          { id: 'delete', label: 'Delete' },
-        ]}
-        onActionClick={(action, row) => {
-          if (action === 'edit') openModal(row);
-          if (action === 'delete') setDeleteModal({ isOpen: true, id: row.id });
-        }}
-      />
 
       {/* Training Modal */}
       <Modal
@@ -201,20 +221,16 @@ export default function AdminTrainings() {
         onClose={() => setIsModalOpen(false)}
         title={editingTraining ? "Edit Training" : "New Training"}
         size="lg"
-        footerActions={[
-          { label: "Cancel", variant: "secondary", onClick: () => setIsModalOpen(false) },
-          { label: editingTraining ? "Update" : "Create", variant: "primary", onClick: handleSubmit },
-        ]}
       >
-        <div className="space-y-6">
+        <div className="space-y-5 sm:space-y-6 max-h-[68vh] overflow-y-auto pr-2 py-3">
           <input
             placeholder="Training Title"
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-4 py-3 border rounded-xl"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
           />
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <CustomSelect
               label="Department"
               value={formData.department}
@@ -238,28 +254,28 @@ export default function AdminTrainings() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <input
               type="date"
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              className="w-full px-4 py-3 border rounded-xl"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
             />
             <input
               placeholder="Duration (e.g. 4 hours)"
               value={formData.duration}
               onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-              className="w-full px-4 py-3 border rounded-xl"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <input
               type="number"
               placeholder="Number of Participants"
               value={formData.participants}
               onChange={(e) => setFormData({ ...formData, participants: Number(e.target.value) })}
-              className="w-full px-4 py-3 border rounded-xl"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
             />
 
             <CustomSelect
@@ -279,7 +295,7 @@ export default function AdminTrainings() {
               placeholder="Average Score (%)"
               value={formData.score}
               onChange={(e) => setFormData({ ...formData, score: Number(e.target.value) })}
-              className="w-full px-4 py-3 border rounded-xl"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none"
             />
           )}
         </div>
@@ -290,12 +306,11 @@ export default function AdminTrainings() {
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, id: null })}
         title="Delete Training"
-        footerActions={[
-          { label: "Cancel", variant: "secondary" },
-          { label: "Delete", variant: "danger", onClick: handleDelete },
-        ]}
+        size="sm"
       >
-        <p>Are you sure you want to delete this training record?</p>
+        <p className="text-center py-8 text-gray-600">
+          Are you sure you want to delete this training record? This action cannot be undone.
+        </p>
       </Modal>
     </div>
   );

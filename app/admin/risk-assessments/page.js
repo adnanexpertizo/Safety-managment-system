@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
+import { Edit, Trash2 } from 'lucide-react';   // ← Icons Added
+
 import FilterBar from '@/components/FilterBar';
 import Table from '@/components/Table';
 import Button from '@/components/Button';
 import Modal from '@/components/Modal';
-import SummaryCards  from '@/components/SummaryCards';
+import SummaryCards from '@/components/SummaryCards';
 import CustomSelect from '@/components/CustomSelect';
 
 import {
@@ -67,18 +69,10 @@ export default function AdminRiskAssessments() {
   const filteredData = useMemo(() => {
     let result = [...assessments];
 
-    if (filters.category) {
-      result = result.filter(a => a.hazardCategory === filters.category);
-    }
-    if (filters.status) {
-      result = result.filter(a => a.status === filters.status);
-    }
+    if (filters.category) result = result.filter(a => a.hazardCategory === filters.category);
+    if (filters.status) result = result.filter(a => a.status === filters.status);
     if (filters.assignedTo) {
-      if (filters.assignedTo === 'my') {
-        // You can implement "My Reports" logic here if needed
-      } else {
-        result = result.filter(a => a.assignedTo === filters.assignedTo);
-      }
+      result = result.filter(a => a.assignedTo === filters.assignedTo);
     }
     if (filters.search) {
       const term = filters.search.toLowerCase();
@@ -89,7 +83,6 @@ export default function AdminRiskAssessments() {
         a.assignedName?.toLowerCase().includes(term)
       );
     }
-
     return result;
   }, [assessments, filters]);
 
@@ -171,8 +164,7 @@ export default function AdminRiskAssessments() {
       addLocalRiskAssessment(payload);
     }
 
-    const updated = getLocalRiskAssessments();
-    setAssessments(updated);
+    setAssessments(getLocalRiskAssessments());
     setIsModalOpen(false);
   };
 
@@ -183,74 +175,107 @@ export default function AdminRiskAssessments() {
   };
 
   const columns = [
-    { key: 'activity', label: 'Activity' },
-    { key: 'hazard', label: 'Hazard' },
+    { key: 'activity', label: 'Activity', className: 'min-w-[160px]' },
+    { key: 'hazard', label: 'Hazard', className: 'min-w-[160px]' },
     { key: 'hazardCategory', label: 'Category' },
     { key: 'location', label: 'Location' },
     { key: 'likelihood', label: 'L' },
     { key: 'severity', label: 'S' },
     { key: 'riskScore', label: 'Score' },
-    { key: 'riskLevel', label: 'Risk Level', type: 'badge' },
-    { key: 'assignedName', label: 'Employee Name' },
+    { 
+      key: 'riskLevel', 
+      label: 'Risk Level',
+      render: (row) => (
+        <span className={`px-3 py-1 rounded-full text-xs font-medium
+          ${row.riskLevel === 'High' ? 'bg-red-100 text-red-700' : 
+            row.riskLevel === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 
+            'bg-green-100 text-green-700'}`}>
+          {row.riskLevel}
+        </span>
+      )
+    },
+    { key: 'assignedName', label: 'Assigned To' },
     { key: 'status', label: 'Status' },
     { key: 'reviewDate', label: 'Review Date', type: 'date' },
   ];
 
-  if (loading) return <p className="p-10 text-center">Loading...</p>;
+  if (loading) return <p className="p-6 text-center text-lg">Loading...</p>;
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Risk Assessments</h1>
-          <p className="text-gray-500">HSE Risk Management & Hazard Control System</p>
+    <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
+      <div className="max-w-screen-2xl mx-auto space-y-6">
+        
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+              Risk Assessments
+            </h1>
+            <p className="text-gray-500 text-sm sm:text-base mt-1">
+              HSE Risk Management & Hazard Control System
+            </p>
+          </div>
+          <Button 
+            onClick={() => openModal()} 
+            className="w-full sm:w-auto px-6 py-3 text-base"
+          >
+            + New Risk Assessment
+          </Button>
         </div>
-        <Button onClick={() => openModal()}>+ New Risk Assessment</Button>
+
+        {/* Filter Bar */}
+        <FilterBar 
+          filters={filters} 
+          onFilterChange={setFilters}
+          showCategory={true}           
+          showReportType={false}
+        />
+
+        {/* Summary Cards */}
+        <SummaryCards
+          cards={[
+            { icon: "📊", label: "Total", value: total },
+            { icon: "🔴", label: "Open", value: open, color: "text-orange-600" },
+            { icon: "⚠️", label: "High Risk", value: highRisk, color: "text-red-600" },
+            { icon: "✅", label: "Closed", value: total - open, color: "text-green-600" },
+          ]}
+        />
+
+        {/* Table with Icons */}
+        <Table
+          columns={columns}
+          data={filteredData}
+          actions={[
+            { 
+              id: 'edit', 
+              label: 'Edit', 
+              icon: Edit 
+            },
+            { 
+              id: 'delete', 
+              label: 'Delete', 
+              icon: Trash2 
+            },
+          ]}
+          onActionClick={(action, row) => {
+            if (action === 'edit') openModal(row);
+            if (action === 'delete') setDeleteModal({ isOpen: true, id: row.id });
+          }}
+          minWidth="1400px"
+        />
       </div>
 
-      <FilterBar 
-        filters={filters} 
-        onFilterChange={setFilters}
-        showCategory={true}           
-        showReportType={false}
-      />
-
-      {/* Summary Cards */}
-      <SummaryCards
-        cards={[
-          { icon: "📊", label: "Total", value: total },
-          { icon: "🔴", label: "Open", value: open, color: "text-orange-600" },
-          { icon: "⚠️", label: "High Risk", value: highRisk, color: "text-red-600" },
-          { icon: "✅", label: "Closed", value: total - open, color: "text-green-600" },
-        ]}
-      />
-
-      <Table
-        columns={columns}
-        data={filteredData}
-        actions={[
-          { id: 'edit', label: 'Edit' },
-          { id: 'delete', label: 'Delete' },
-        ]}
-        onActionClick={(action, row) => {
-          if (action === 'edit') openModal(row);
-          if (action === 'delete') setDeleteModal({ isOpen: true, id: row.id });
-        }}
-      />
+      {/* ====================== MODALS ====================== */}
 
       {/* Main Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={editingAssessment ? "Edit Risk Assessment" : "New Risk Assessment"}
-        size="lg"
-        footerActions={[
-          { label: "Cancel", variant: "secondary", onClick: () => setIsModalOpen(false) },
-          { label: "Save", variant: "primary", onClick: handleSubmit },
-        ]}
+        size="xl"
       >
-        <div className="space-y-6">
-
+        <div className="space-y-5 sm:space-y-6 max-h-[70vh] overflow-y-auto pr-2 py-3">
+          
           <CustomSelect
             label="Assign To Employee"
             value={formData.assignedTo}
@@ -261,12 +286,28 @@ export default function AdminRiskAssessments() {
             }))}
           />
 
-          <div className="grid grid-cols-2 gap-6">
-            <input placeholder="Activity" value={formData.activity} onChange={(e) => setFormData({ ...formData, activity: e.target.value })} className="w-full px-4 py-3 border rounded-xl" />
-            <input placeholder="Location" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} className="w-full px-4 py-3 border rounded-xl" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <input 
+              placeholder="Activity" 
+              value={formData.activity} 
+              onChange={(e) => setFormData({ ...formData, activity: e.target.value })} 
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+            />
+            <input 
+              placeholder="Location" 
+              value={formData.location} 
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })} 
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+            />
           </div>
 
-          <textarea placeholder="Hazard Description" value={formData.hazard} onChange={(e) => setFormData({ ...formData, hazard: e.target.value })} className="w-full px-4 py-3 border rounded-xl" />
+          <textarea 
+            placeholder="Hazard Description" 
+            value={formData.hazard} 
+            onChange={(e) => setFormData({ ...formData, hazard: e.target.value })} 
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+            rows={3}
+          />
 
           <CustomSelect
             label="Category"
@@ -280,32 +321,102 @@ export default function AdminRiskAssessments() {
             ]}
           />
 
-          {/* Rest of form fields remain same as before */}
-          <div className="grid grid-cols-2 gap-6">
-            <input type="number" min="1" max="5" value={formData.likelihood} onChange={(e) => setFormData({ ...formData, likelihood: Number(e.target.value) })} className="w-full px-4 py-3 border rounded-xl" />
-            <input type="number" min="1" max="5" value={formData.severity} onChange={(e) => setFormData({ ...formData, severity: Number(e.target.value) })} className="w-full px-4 py-3 border rounded-xl" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Likelihood (1-5)</label>
+              <input 
+                type="number" 
+                min="1" 
+                max="5" 
+                value={formData.likelihood} 
+                onChange={(e) => setFormData({ ...formData, likelihood: Number(e.target.value) })} 
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Severity (1-5)</label>
+              <input 
+                type="number" 
+                min="1" 
+                max="5" 
+                value={formData.severity} 
+                onChange={(e) => setFormData({ ...formData, severity: Number(e.target.value) })} 
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+              />
+            </div>
           </div>
 
-          <textarea placeholder="Existing Controls" value={formData.existingControls} onChange={(e) => setFormData({ ...formData, existingControls: e.target.value })} className="w-full px-4 py-3 border rounded-xl" />
-          <textarea placeholder="Additional Controls" value={formData.additionalControls} onChange={(e) => setFormData({ ...formData, additionalControls: e.target.value })} className="w-full px-4 py-3 border rounded-xl" />
-          <input placeholder="PPE Required" value={formData.ppeRequired} onChange={(e) => setFormData({ ...formData, ppeRequired: e.target.value })} className="w-full px-4 py-3 border rounded-xl" />
+          <textarea 
+            placeholder="Existing Controls" 
+            value={formData.existingControls} 
+            onChange={(e) => setFormData({ ...formData, existingControls: e.target.value })} 
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+            rows={3}
+          />
 
-          <div className="grid grid-cols-2 gap-6">
-            <input type="date" value={formData.reviewDate} onChange={(e) => setFormData({ ...formData, reviewDate: e.target.value })} className="w-full px-4 py-3 border rounded-xl" />
-            <CustomSelect label="Status" value={formData.status} onChange={(v) => setFormData({ ...formData, status: v })} options={[{ value: 'open', label: 'Open' }, { value: 'in-progress', label: 'In Progress' }, { value: 'closed', label: 'Closed' }]} />
+          <textarea 
+            placeholder="Additional Controls" 
+            value={formData.additionalControls} 
+            onChange={(e) => setFormData({ ...formData, additionalControls: e.target.value })} 
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+            rows={3}
+          />
+
+          <input 
+            placeholder="PPE Required" 
+            value={formData.ppeRequired} 
+            onChange={(e) => setFormData({ ...formData, ppeRequired: e.target.value })} 
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Review Date</label>
+              <input 
+                type="date" 
+                value={formData.reviewDate} 
+                onChange={(e) => setFormData({ ...formData, reviewDate: e.target.value })} 
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+              />
+            </div>
+            <CustomSelect 
+              label="Status" 
+              value={formData.status} 
+              onChange={(v) => setFormData({ ...formData, status: v })} 
+              options={[
+                { value: 'open', label: 'Open' },
+                { value: 'in-progress', label: 'In Progress' },
+                { value: 'closed', label: 'Closed' }
+              ]} 
+            />
           </div>
 
-          <textarea placeholder="Legal Requirement" value={formData.legalRequirement} onChange={(e) => setFormData({ ...formData, legalRequirement: e.target.value })} className="w-full px-4 py-3 border rounded-xl" />
+          <textarea 
+            placeholder="Legal Requirement" 
+            value={formData.legalRequirement} 
+            onChange={(e) => setFormData({ ...formData, legalRequirement: e.target.value })} 
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+            rows={2}
+          />
 
           {/* Image Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Upload Risk Image</label>
-            <div className="border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-2xl p-8 text-center cursor-pointer" onClick={() => document.getElementById('fileUpload').click()}>
+            <div 
+              className="border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-2xl p-6 sm:p-8 text-center cursor-pointer bg-gray-50"
+              onClick={() => document.getElementById('fileUpload').click()}
+            >
               <input id="fileUpload" type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
               <p className="text-gray-600">📸 Click to upload risk image</p>
               <p className="text-xs text-gray-400 mt-1">PNG, JPG (Max 5MB)</p>
             </div>
-            {imagePreview && <img src={imagePreview} alt="Preview" className="mt-4 max-h-72 rounded-xl object-contain" />}
+            {imagePreview && (
+              <img 
+                src={imagePreview} 
+                alt="Preview" 
+                className="mt-4 max-h-72 mx-auto rounded-xl shadow-sm" 
+              />
+            )}
           </div>
         </div>
       </Modal>
@@ -315,14 +426,12 @@ export default function AdminRiskAssessments() {
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, id: null })}
         title="Delete Risk Assessment"
-        footerActions={[
-          { label: "Cancel", variant: "secondary", onClick: () => setDeleteModal({ isOpen: false, id: null }) },
-          { label: "Delete", variant: "danger", onClick: handleDelete },
-        ]}
+        size="sm"
       >
-        <p>Are you sure you want to delete this risk assessment? This action cannot be undone.</p>
+        <p className="text-center py-8 text-gray-600">
+          Are you sure you want to delete this risk assessment? This action cannot be undone.
+        </p>
       </Modal>
-
     </div>
   );
 }

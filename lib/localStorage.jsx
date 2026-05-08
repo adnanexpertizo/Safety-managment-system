@@ -225,6 +225,42 @@ export const initLocalData = () => {
   }
 };
 
+// ==================== DASHBOARD HELPERS ====================
+
+export const getDashboardStats = () => {
+  initLocalData();
+
+  const reports = JSON.parse(localStorage.getItem(STORAGE_KEYS.REPORTS)) || [];
+  const riskAssessments = JSON.parse(localStorage.getItem(STORAGE_KEYS.RISK_ASSESSMENTS)) || [];
+  const trainings = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRAININGS)) || [];
+
+  const openReports = reports.filter(r => (r.status || '').toLowerCase() === 'open').length;
+  const resolvedReports = reports.filter(r => ['resolved', 'closed'].includes((r.status || '').toLowerCase())).length;
+
+  const highRiskAssessments = riskAssessments.filter(ra => 
+    (ra.riskLevel || '').toLowerCase() === 'high' && (ra.status || '').toLowerCase() === 'open'
+  ).length;
+
+  return {
+    totalReports: reports.length,
+    incidents: reports.filter(r => r.type === 'incident').length,
+    nearMisses: reports.filter(r => r.type === 'near_miss').length,
+    hazards: reports.filter(r => r.type === 'hazard').length,
+    openReports,
+    resolvedReports,
+    totalRiskAssessments: riskAssessments.length,
+    highRiskAssessments,
+    totalTrainings: trainings.length,
+  };
+};
+
+export const getRecentReports = (limit = 5) => {
+  const reports = getLocalReports();
+  return [...reports]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, limit);
+};
+
   // ==================== REPORTS ====================
 
   export const getLocalReports = () => {

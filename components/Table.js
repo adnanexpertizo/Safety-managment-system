@@ -28,44 +28,38 @@ export default function Table({
   };
 
   return (
-    <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
       
-      {/* ✅ Table Container (MIN HEIGHT FIX APPLIED) */}
-      <div
-        className="overflow-auto"
-        style={{
-          maxHeight: maxHeight,
-          minHeight: 'min(600px, 60vh)', // ✅ key fix (responsive safe)
-        }}
-      >
-        <table className="w-full min-w-[1200px]">
-          
+      {/* Table Container - Fixed Horizontal Scroll */}
+      <div className="overflow-x-auto" style={{ maxHeight: maxHeight }}>
+        <table className="w-full min-w-[1100px] md:min-w-[1300px] table-auto">
           {/* HEADER */}
-          <thead className="sticky top-0 z-10 bg-primary text-white">
+          <thead className="sticky top-0 z-20 bg-gray-900 text-white">
             <tr>
               {columns.map((col, idx) => (
                 <th
                   key={idx}
-                  className="px-6 py-4 text-left text-sm font-semibold whitespace-nowrap"
+                  className="px-4 py-4 text-left text-xs md:text-sm font-semibold whitespace-nowrap border-b border-gray-700"
                 >
                   {col.label}
                 </th>
               ))}
+              
               {actions.length > 0 && (
-                <th className="px-6 py-4 text-left text-sm font-semibold w-28">
-                  Action
+                <th className="px-4 py-4 text-left text-xs md:text-sm font-semibold w-24 md:w-28 border-b border-gray-700 sticky right-0 bg-gray-900 z-30">
+                  Actions
                 </th>
               )}
             </tr>
           </thead>
 
           {/* BODY */}
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 text-sm">
             {paginatedData.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length + (actions.length > 0 ? 1 : 0)}
-                  className="px-6 py-24 text-center text-gray-500"
+                  className="px-6 py-20 text-center text-gray-500"
                 >
                   No records found
                 </td>
@@ -79,67 +73,53 @@ export default function Table({
                   {columns.map((col, colIdx) => {
                     const cellValue = row[col.key];
 
-                    // Avatar
-                    if (
-                      col.key === 'avatar' ||
-                      col.key.toLowerCase().includes('avatar')
-                    ) {
+                    if (col.render) {
                       return (
-                        <td key={colIdx} className="px-6 py-4">
+                        <td key={colIdx} className={`px-4 py-4 ${col.className || ''}`}>
+                          {col.render(row)}
+                        </td>
+                      );
+                    }
+
+                    if (col.key === 'avatar' || col.key.toLowerCase().includes('avatar')) {
+                      return (
+                        <td key={colIdx} className="px-4 py-4">
                           <img
                             src={cellValue || '/default-avatar.png'}
                             alt="avatar"
-                            className="w-9 h-9 rounded-full object-cover border border-gray-200"
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full object-cover border border-gray-200"
                           />
                         </td>
                       );
                     }
 
-                    // Badge
-                    if (col.type === 'badge') {
-                      return (
-                        <td key={colIdx} className="px-6 py-4">
-                          <span className="px-3 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700">
-                            {cellValue}
-                          </span>
-                        </td>
-                      );
-                    }
-
-                    // Date
-                    if (col.type === 'date') {
-                      return (
-                        <td className="px-6 py-4 text-sm text-gray-700" key={colIdx}>
-                          {formatDate(cellValue)}
-                        </td>
-                      );
-                    }
-
-                    // Default
                     return (
                       <td
                         key={colIdx}
-                        className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap"
+                        className={`px-4 py-4 text-gray-700 whitespace-nowrap ${col.className || ''}`}
                       >
-                        {cellValue || '-'}
+                        {cellValue ?? '-'}
                       </td>
                     );
                   })}
 
-                  {/* ACTIONS */}
+                  {/* ACTIONS COLUMN */}
                   {actions.length > 0 && (
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3 opacity-70 group-hover:opacity-100 transition">
+                    <td className="px-4 py-4 sticky right-0 bg-white group-hover:bg-gray-50 z-10 border-l">
+                      <div className="flex items-center gap-1 md:gap-2 opacity-75 group-hover:opacity-100 transition-all">
                         {actions.map((action, i) => {
                           const Icon = action.icon;
                           return (
                             <button
                               key={i}
-                              onClick={() => onActionClick(action.id, row)}
-                              className="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-lg transition-all"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onActionClick(action.id, row);
+                              }}
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-all active:scale-95"
                               title={action.label}
                             >
-                              {Icon ? <Icon size={18} /> : action.label}
+                              {Icon ? <Icon size={18} className="text-gray-600" /> : action.label}
                             </button>
                           );
                         })}
@@ -155,25 +135,30 @@ export default function Table({
 
       {/* PAGINATION */}
       {totalPages > 1 && (
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-6 py-4 border-t bg-gray-50">
-          
-          <div className="text-sm text-gray-500 text-center md:text-left">
-            Showing {startIdx + 1} to {Math.min(endIdx, data.length)} of {data.length} entries
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 md:px-6 py-4 border-t bg-gray-50">
+          <div className="text-xs md:text-sm text-gray-500 text-center sm:text-left">
+            Showing <span className="font-medium">{startIdx + 1}</span> to{' '}
+            <span className="font-medium">{Math.min(endIdx, data.length)}</span> of{' '}
+            <span className="font-medium">{data.length}</span> entries
           </div>
 
-          <div className="flex justify-center md:justify-end gap-2">
+          <div className="flex items-center justify-center gap-2">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 text-sm border rounded-lg hover:bg-white disabled:opacity-50 transition"
+              className="px-4 py-2 text-sm border border-gray-300 rounded-xl hover:bg-white disabled:opacity-40 transition disabled:cursor-not-allowed"
             >
               Previous
             </button>
 
+            <div className="px-4 py-2 text-sm font-medium bg-white border border-gray-300 rounded-xl">
+              Page {currentPage} of {totalPages}
+            </div>
+
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 text-sm border rounded-lg hover:bg-white disabled:opacity-50 transition"
+              className="px-4 py-2 text-sm border border-gray-300 rounded-xl hover:bg-white disabled:opacity-40 transition disabled:cursor-not-allowed"
             >
               Next
             </button>

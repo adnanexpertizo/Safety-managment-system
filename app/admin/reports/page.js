@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
+import { Edit, Trash2 } from 'lucide-react'; // ← Icons Imported
+
 import { getLocalReports, addLocalReport, updateLocalReport, deleteLocalReport, getLocalUsers } from '@/lib/localStorage';
 
 import FilterBar from '@/components/FilterBar';
@@ -8,7 +10,7 @@ import Table from '@/components/Table';
 import Button from '@/components/Button';
 import Modal from '@/components/Modal';
 import CustomSelect from '@/components/CustomSelect';
-import  SummaryCards from '@/components/SummaryCards';
+import SummaryCards from '@/components/SummaryCards';
 
 export default function AdminReports() {
   const [reports, setReports] = useState([]);
@@ -73,7 +75,7 @@ export default function AdminReports() {
       if (filters.assignedTo === 'my') {
         // Add your own logic here if needed
       } else {
-        filtered = filtered.filter(r => r.assignedTo === filters.assignedTo);
+      filtered = filtered.filter(r => r.assignedTo === filters.assignedTo);
       }
     }
     if (filters.search) {
@@ -93,6 +95,7 @@ export default function AdminReports() {
   const total = filteredReports.length;
   const open = filteredReports.filter(r => r.status === 'open').length;
   const closed = filteredReports.filter(r => r.status === 'closed').length;
+  const inProgress = filteredReports.filter(r => r.status === 'in-progress').length;
 
   const openModal = (report = null) => {
     if (report) {
@@ -167,30 +170,20 @@ export default function AdminReports() {
       addLocalReport(reportData);
     }
 
-    const refreshed = getLocalReports();
-    setReports(refreshed);
+    setReports(getLocalReports());
     setIsModalOpen(false);
-  };
-
-  const openStatusModal = (report, newStatus) => {
-    setStatusModal({ isOpen: true, report, newStatus });
-    setStatusNote('');
-    setStatusImage(null);
-    setStatusDate(new Date().toISOString().slice(0, 16));
   };
 
   const handleStatusChange = () => {
     if (!statusModal.report) return;
     updateLocalReport(statusModal.report.id, { status: statusModal.newStatus });
-    const refreshed = getLocalReports();
-    setReports(refreshed);
+    setReports(getLocalReports());
     setStatusModal({ isOpen: false, report: null, newStatus: '' });
   };
 
   const handleDelete = () => {
     deleteLocalReport(deleteModal.reportId);
-    const refreshed = getLocalReports();
-    setReports(refreshed);
+    setReports(getLocalReports());
     setDeleteModal({ isOpen: false, reportId: null });
   };
 
@@ -204,51 +197,73 @@ export default function AdminReports() {
     { key: 'createdAt', label: 'Date', type: 'date' },
   ];
 
-  if (loading) return <p className="p-10 text-center">Loading reports...</p>;
+  if (loading) return <p className="p-6 text-center text-lg">Loading reports...</p>;
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-[28px] font-bold">All Reports</h1>
-          <p className="text-gray-500 text-sm">Incident, Near Miss & Hazard Management</p>
+    <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
+      <div className="max-w-screen-2xl mx-auto space-y-6">
+        
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+              All Reports
+            </h1>
+            <p className="text-gray-500 text-sm sm:text-base mt-1">
+              Incident, Near Miss & Hazard Management
+            </p>
+          </div>
+          <Button 
+            onClick={() => openModal()} 
+            className="w-full sm:w-auto px-6 py-3 text-base"
+          >
+            + New Report
+          </Button>
         </div>
-        <Button onClick={() => openModal()}>+ New Report</Button>
+
+        {/* Filter Bar */}
+        <FilterBar 
+          filters={filters} 
+          onFilterChange={setFilters}
+          showReportType={true}
+          showCategory={false}
+        />
+
+        {/* Summary Cards */}
+        <SummaryCards
+          cards={[
+            { icon: "📊", label: "Total Reports", value: total },
+            { icon: "🔴", label: "Open", value: open, color: "text-orange-600" },
+            { icon: "✅", label: "Closed", value: closed, color: "text-green-600" },
+            { icon: "⚠️", label: "In Progress", value: inProgress, color: "text-blue-600" },
+          ]}
+        />
+
+        {/* Table with Icons */}
+        <Table
+          columns={columns}
+          data={filteredReports}
+          actions={[
+            { 
+              id: 'edit', 
+              label: 'Edit', 
+              icon: Edit 
+            },
+            { 
+              id: 'delete', 
+              label: 'Delete', 
+              icon: Trash2 
+            },
+          ]}
+          onActionClick={(action, row) => {
+            if (action === 'edit') openModal(row);
+            if (action === 'delete') setDeleteModal({ isOpen: true, reportId: row.id });
+          }}
+          maxHeight="calc(100vh - 360px)"
+        />
       </div>
 
-      {/* Filter Bar */}
-      <FilterBar 
-        filters={filters} 
-        onFilterChange={setFilters}
-        showReportType={true}
-        showCategory={false}
-      />
-
-      {/* Summary Cards */}
-    {/* Summary Cards */}
-<SummaryCards
-  cards={[
-    { icon: "📊", label: "Total Reports", value: total },
-    { icon: "🔴", label: "Open", value: open, color: "text-orange-600" },
-    { icon: "✅", label: "Closed", value: closed, color: "text-green-600" },
-    { icon: "⚠️", label: "In Progress", value: filteredReports.filter(r => r.status === 'in-progress').length, color: "text-blue-600" },
-  ]}
-/>
-      {/* Table */}
-      <Table
-        columns={columns}
-        data={filteredReports}
-        actions={[
-          { id: 'edit', label: 'Edit' },
-          { id: 'delete', label: 'Delete' },
-        ]}
-        onActionClick={(action, row) => {
-          if (action === 'edit') openModal(row);
-          if (action === 'delete') setDeleteModal({ isOpen: true, reportId: row.id });
-        }}
-        maxHeight="680px"
-      />
-
+      {/* Modals remain the same */}
       {/* Main Report Modal */}
       <Modal
         isOpen={isModalOpen}
@@ -260,7 +275,8 @@ export default function AdminReports() {
           { label: editingReport ? "Update" : "Create", variant: "primary", onClick: handleSubmit },
         ]}
       >
-        <div className="space-y-6 max-h-[68vh] overflow-y-auto pr-2">
+        <div className="space-y-5 sm:space-y-6 max-h-[68vh] overflow-y-auto pr-2 py-3">
+          {/* ... (your existing form content - unchanged) ... */}
           <CustomSelect
             label="Assign To Employee"
             value={formData.assignedTo}
@@ -271,7 +287,7 @@ export default function AdminReports() {
             }))}
           />
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <CustomSelect 
               label="Report Type" 
               value={formData.type} 

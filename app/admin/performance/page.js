@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { Eye } from 'lucide-react'; // ← Icon Added
 import CustomSelect from '@/components/CustomSelect';
 import Table from '@/components/Table';
 import Modal from '@/components/Modal';
@@ -43,15 +44,12 @@ export default function PerformancePage() {
     ? (filteredData.reduce((sum, r) => sum + r.resolutionDays, 0) / totalReports).toFixed(1)
     : 0;
 
-  // ---------------- PERFORMANCE SCORE ----------------
   const performanceScore = useMemo(() => {
     if (!totalReports) return 0;
-
     let score = 100;
     score -= highRisk * 10;
     score += closedReports * 5;
     score -= parseFloat(avgResolution) * 2;
-
     return Math.max(0, Math.min(100, Math.round(score)));
   }, [totalReports, highRisk, closedReports, avgResolution]);
 
@@ -69,7 +67,6 @@ export default function PerformancePage() {
       ? 'text-yellow-600'
       : 'text-red-600';
 
-  // ---------------- TABLE ----------------
   const columns = [
     { key: 'reportTitle', label: 'Report Title' },
     { key: 'type', label: 'Type' },
@@ -120,10 +117,10 @@ export default function PerformancePage() {
   ].filter(Boolean);
 
   return (
-    <div className="w-full space-y-6">
-
-      {/* FILTERS */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="w-full max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      
+      {/* FILTERS - Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <CustomSelect
           options={employees.map(n => ({ value: n, label: n }))}
           value={selectedEmployee}
@@ -147,16 +144,16 @@ export default function PerformancePage() {
           placeholder="Search reports..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="px-4 py-3 border rounded-xl w-full"
+          className="px-4 py-3 border border-gray-300 rounded-xl w-full focus:outline-none focus:border-blue-500"
         />
       </div>
 
-      {/* SUMMARY CARDS */}
+      {/* SUMMARY CARDS - Responsive */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {summaryCards.map((card, i) => (
-          <div key={i} className="bg-white border rounded-xl p-5 text-center">
-            <div className="text-xl">{card.icon}</div>
-            <p className="text-sm text-gray-500 mt-2">{card.label}</p>
+          <div key={i} className="bg-white border rounded-2xl p-5 text-center shadow-sm">
+            <div className="text-2xl">{card.icon}</div>
+            <p className="text-sm text-gray-500 mt-3">{card.label}</p>
             <p className={`text-3xl font-bold mt-2 ${card.color}`}>
               {card.value}
             </p>
@@ -164,20 +161,20 @@ export default function PerformancePage() {
         ))}
       </div>
 
-      {/* PERFORMANCE SCORE */}
-      <div className="bg-white border rounded-xl p-6 flex flex-col md:flex-row justify-between items-center">
-        <div>
+      {/* PERFORMANCE SCORE - Responsive */}
+      <div className="bg-white border rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="text-center md:text-left">
           <p className="text-gray-500 text-sm">Performance Score</p>
-          <p className={`text-4xl font-bold ${performanceColor}`}>
+          <p className={`text-4xl sm:text-5xl font-bold ${performanceColor}`}>
             {performanceScore}/100
           </p>
-          <p className="text-sm mt-1">{performanceLabel}</p>
+          <p className="text-sm mt-1 font-medium">{performanceLabel}</p>
         </div>
 
-        <div className="w-full md:w-1/2 mt-4 md:mt-0">
+        <div className="w-full md:w-2/3">
           <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-green-500"
+              className="h-full bg-green-500 transition-all"
               style={{ width: `${performanceScore}%` }}
             />
           </div>
@@ -186,9 +183,9 @@ export default function PerformancePage() {
 
       {/* RECOMMENDATIONS */}
       {recommendations.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-          <p className="font-semibold mb-2">Recommendations</p>
-          <ul className="text-sm space-y-1 list-disc pl-5">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-5">
+          <p className="font-semibold mb-3">Recommendations</p>
+          <ul className="text-sm space-y-1 list-disc pl-5 text-gray-700">
             {recommendations.map((r, i) => (
               <li key={i}>{r}</li>
             ))}
@@ -196,11 +193,17 @@ export default function PerformancePage() {
         </div>
       )}
 
-      {/* TABLE */}
+      {/* TABLE with Icon */}
       <Table
         columns={columns}
         data={filteredData}
-        actions={[{ id: 'view', label: 'View' }]}
+        actions={[
+          { 
+            id: 'view', 
+            label: 'View', 
+            icon: Eye 
+          }
+        ]}
         onActionClick={handleAction}
         maxHeight="580px"
       />
@@ -213,12 +216,10 @@ export default function PerformancePage() {
         size="lg"
       >
         {modal.data && (
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold">
-              {modal.data.reportTitle}
-            </h3>
+          <div className="space-y-5 py-2">
+            <h3 className="text-xl font-semibold">{modal.data.reportTitle}</h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 bg-gray-50 rounded-xl">
                 <p className="text-sm text-gray-500">Type</p>
                 <p className="font-semibold">{modal.data.type}</p>
