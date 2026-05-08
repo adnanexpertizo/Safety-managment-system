@@ -1,11 +1,51 @@
-  // @/lib/localStorage.js
-  const STORAGE_KEYS = {
-    REPORTS: 'safety_reports',
-    RISK_ASSESSMENTS: 'safety_risk_assessments',
-  //   EMPLOYEES: 'safety_employees',
-    EMPLOYEES: 'safety_users',
-  };
-
+// Add this to STORAGE_KEYS
+const STORAGE_KEYS = {
+  REPORTS: 'safety_reports',
+  RISK_ASSESSMENTS: 'safety_risk_assessments',
+  TRAININGS: 'safety_trainings',
+  EMPLOYEES: 'safety_users',
+};
+const STATIC_TRAININGS = [
+  {
+    id: 'tr1',
+    title: "Electrical Safety & Lockout/Tagout",
+    department: "Electrical",
+    trainer: "Adnan Rafiq",
+    trainerId: "emp2",
+    date: "2026-05-15",
+    duration: "4 hours",
+    participants: 18,
+    status: "Completed",
+    score: 88,
+    createdAt: "2026-04-20T10:00:00.000Z",
+  },
+  {
+    id: 'tr2',
+    title: "Heavy Machinery Operation Safety",
+    department: "Mechanical",
+    trainer: "John Smith",
+    trainerId: "emp1",
+    date: "2026-05-20",
+    duration: "6 hours",
+    participants: 12,
+    status: "Scheduled",
+    score: null,
+    createdAt: "2026-04-25T14:30:00.000Z",
+  },
+  {
+    id: 'tr3',
+    title: "Hazard Identification & Risk Assessment",
+    department: "HSE",
+    trainer: "Muhammad Danish",
+    trainerId: "emp3",
+    date: "2026-05-10",
+    duration: "3 hours",
+    participants: 25,
+    status: "Completed",
+    score: 92,
+    createdAt: "2026-04-15T09:00:00.000Z",
+  },
+];
   const STATIC_EMPLOYEES = [
     {
       id: 'emp1',
@@ -162,20 +202,28 @@
     },
   ];
 
-  export const initLocalData = () => {
+export const initLocalData = () => {
+  
+  // Add this line at the top (Important for Next.js)
+  if (typeof window === 'undefined') return;
 
-    if (!localStorage.getItem(STORAGE_KEYS.EMPLOYEES)) {
-      localStorage.setItem(STORAGE_KEYS.EMPLOYEES, JSON.stringify(STATIC_EMPLOYEES));
-    }
+  if (!localStorage.getItem(STORAGE_KEYS.EMPLOYEES)) {
+    localStorage.setItem(STORAGE_KEYS.EMPLOYEES, JSON.stringify(STATIC_EMPLOYEES));
+  }
 
-    if (!localStorage.getItem(STORAGE_KEYS.REPORTS)) {
-      localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(STATIC_REPORTS));
-    }
+  if (!localStorage.getItem(STORAGE_KEYS.REPORTS)) {
+    localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(STATIC_REPORTS));
+  }
 
-    if (!localStorage.getItem(STORAGE_KEYS.RISK_ASSESSMENTS)) {
-      localStorage.setItem(STORAGE_KEYS.RISK_ASSESSMENTS, JSON.stringify(STATIC_RISK_ASSESSMENTS));
-    }
-  };
+  if (!localStorage.getItem(STORAGE_KEYS.RISK_ASSESSMENTS)) {
+    localStorage.setItem(STORAGE_KEYS.RISK_ASSESSMENTS, JSON.stringify(STATIC_RISK_ASSESSMENTS));
+  }
+
+  // ← ADD THIS BLOCK (for Trainings)
+  if (!localStorage.getItem(STORAGE_KEYS.TRAININGS)) {
+    localStorage.setItem(STORAGE_KEYS.TRAININGS, JSON.stringify(STATIC_TRAININGS));
+  }
+};
 
   // ==================== REPORTS ====================
 
@@ -282,3 +330,36 @@
     const users = getLocalUsers().filter(u => u.id !== id);
     localStorage.setItem(STORAGE_KEYS.EMPLOYEES, JSON.stringify(users));
   };
+
+// ==================== TRAININGS CRUD ====================
+
+export const getLocalTrainings = () => {
+  initLocalData();
+  return JSON.parse(localStorage.getItem(STORAGE_KEYS.TRAININGS)) || [];
+};
+
+export const addLocalTraining = (training) => {
+  const trainings = getLocalTrainings();
+  const newTraining = {
+    ...training,
+    id: 'tr_' + Date.now(),
+    createdAt: new Date().toISOString(),
+  };
+  trainings.unshift(newTraining);
+  localStorage.setItem(STORAGE_KEYS.TRAININGS, JSON.stringify(trainings));
+  return newTraining;
+};
+
+export const updateLocalTraining = (id, data) => {
+  const trainings = getLocalTrainings();
+  const index = trainings.findIndex(t => t.id === id);
+  if (index !== -1) {
+    trainings[index] = { ...trainings[index], ...data, updatedAt: new Date().toISOString() };
+    localStorage.setItem(STORAGE_KEYS.TRAININGS, JSON.stringify(trainings));
+  }
+};
+
+export const deleteLocalTraining = (id) => {
+  const trainings = getLocalTrainings().filter(t => t.id !== id);
+  localStorage.setItem(STORAGE_KEYS.TRAININGS, JSON.stringify(trainings));
+};

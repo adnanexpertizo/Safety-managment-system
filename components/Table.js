@@ -130,17 +130,19 @@ export default function Table({
                   {actions.length > 0 && (
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3 opacity-70 group-hover:opacity-100 transition">
-                        {actions.map((action, i) => (
-                          <button
-                            key={i}
-                            onClick={() => onActionClick(action.id, row)}
-                            className="text-gray-500 hover:text-gray-700 p-1.5 hover:bg-gray-100 rounded-lg transition"
-                            title={action.label}
-                          >
-                            {action.id === 'edit' && '✏️'}
-                            {action.id === 'delete' && '🗑️'}
-                          </button>
-                        ))}
+                        {actions.map((action, i) => {
+                          const Icon = action.icon;
+                          return (
+                            <button
+                              key={i}
+                              onClick={() => onActionClick(action.id, row)}
+                              className="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-lg transition-all"
+                              title={action.label}
+                            >
+                              {Icon ? <Icon size={18} /> : action.label}
+                            </button>
+                          );
+                        })}
                       </div>
                     </td>
                   )}

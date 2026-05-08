@@ -44,8 +44,6 @@ export default function AdminLayout({ children }) {
     { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { label: 'All Reports', href: '/admin/reports', icon: FileText },
     { label: 'Risk Assessments', href: '/admin/risk-assessments', icon: AlertTriangle },
-    { label: 'Corrective Actions', href: '/admin/actions', icon: CheckCircle },
-    { label: 'Personnel', href: '/admin/personnel', icon: Users }, 
     { label: 'User Management', href: '/admin/user-management', icon: Users }, 
     { label: 'Analysis', href: '/admin/analysis', icon: BarChart3 },
     { label: 'Performance', href: '/admin/performance', icon: TrendingUp },

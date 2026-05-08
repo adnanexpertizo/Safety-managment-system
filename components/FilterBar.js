@@ -6,15 +6,16 @@ import CustomSelect from './CustomSelect';
 export default function FilterBar({
   filters = {},
   onFilterChange,
-  showReportType = false,     // For Reports Page
-  showCategory = false,       // For Risk Assessments Page
+  showReportType = false,
+  showCategory = false,
   showEmployee = true,
   showSearch = true,
+  customStatusOptions = null,        // ← New prop for Training page
 }) {
   const { user } = useUser();
   const isAdmin = user?.role === 'ADMIN';
 
-  // Report Type Options (Used in Reports Page)
+  // Report Type Options
   const reportTypeOptions = [
     { value: '', label: 'All Types' },
     { value: 'incident', label: 'Incidents' },
@@ -22,7 +23,7 @@ export default function FilterBar({
     { value: 'hazard', label: 'Hazards' },
   ];
 
-  // Category Options (Used in Risk Assessments)
+  // Category Options
   const categoryOptions = [
     { value: '', label: 'All Categories' },
     { value: 'Physical', label: 'Physical' },
@@ -31,12 +32,16 @@ export default function FilterBar({
     { value: 'Fire', label: 'Fire' },
   ];
 
-  const statusOptions = [
+  // Default Status Options (used by Reports & Risk Assessment)
+  const defaultStatusOptions = [
     { value: '', label: 'All Statuses' },
     { value: 'open', label: 'Open' },
     { value: 'in-progress', label: 'In Progress' },
     { value: 'closed', label: 'Closed' },
   ];
+
+  // Use custom status options if provided (for Training page)
+  const statusOptions = customStatusOptions || defaultStatusOptions;
 
   const employeeOptions = [
     { value: '', label: 'All Employees' },
@@ -51,7 +56,7 @@ export default function FilterBar({
     <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
       <div className="flex flex-wrap gap-4">
 
-        {/* Report Type - For Reports Page */}
+        {/* Report Type */}
         {showReportType && (
           <div className="min-w-[220px] flex-1">
             <CustomSelect
@@ -65,7 +70,7 @@ export default function FilterBar({
           </div>
         )}
 
-        {/* Category - For Risk Assessments */}
+        {/* Category */}
         {showCategory && (
           <div className="min-w-[220px] flex-1">
             <CustomSelect
@@ -79,7 +84,7 @@ export default function FilterBar({
           </div>
         )}
 
-        {/* Status - Common */}
+        {/* Status - Now supports custom options */}
         <div className="min-w-[220px] flex-1">
           <CustomSelect
             label="Status"
@@ -91,14 +96,14 @@ export default function FilterBar({
           />
         </div>
 
-        {/* Employee Filter */}
+        {/* Employee / Trainer */}
         {showEmployee && isAdmin && (
           <div className="min-w-[220px] flex-1">
             <CustomSelect
-              label="Employee"
-              value={filters.assignedTo || ''}
+              label="Trainer"                    // Changed label for Training page
+              value={filters.trainerId || filters.assignedTo || ''}
               onChange={(value) =>
-                onFilterChange({ ...filters, assignedTo: value || '' })
+                onFilterChange({ ...filters, trainerId: value || '' })
               }
               options={employeeOptions}
             />
@@ -136,4 +141,4 @@ function getLocalUsers() {
   } catch {
     return [];
   }
-}   
+}
