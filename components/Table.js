@@ -29,8 +29,8 @@ export default function Table({
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-      
+    <div className="bg-white border border-gray-200  sm:rounded-xl rounded-lg shadow-sm overflow-hidden">
+
       <div className="overflow-x-auto" style={{ maxHeight: maxHeight }}>
         <table className={`w-full table-auto ${className}`}>
 
@@ -39,14 +39,14 @@ export default function Table({
               {columns.map((col, idx) => (
                 <th
                   key={idx}
-                  className="px-4 py-4 text-left text-xs md:text-sm font-semibold whitespace-nowrap border-b border-gray-700"
+                  className="px-2 sm:px-4 py-2.5 sm:py-4 text-left text-[10px] sm:text-xs md:text-sm font-semibold whitespace-nowrap border-b border-gray-700"
                 >
                   {col.label}
                 </th>
               ))}
-              
+
               {actions.length > 0 && (
-                <th className="px-4 py-4 text-left text-xs md:text-sm font-semibold w-24 md:w-28 border-b border-gray-700 sticky right-0 bg-gray-900 z-30">
+                <th className="px-2 sm:px-4 py-2.5 sm:py-4 text-left text-[10px] sm:text-xs md:text-sm font-semibold w-20 sm:w-24 md:w-28 border-b border-gray-700 sticky right-0 bg-gray-900 z-30">
                   Actions
                 </th>
               )}
@@ -54,12 +54,12 @@ export default function Table({
           </thead>
 
           {/* BODY */}
-          <tbody className="divide-y divide-gray-100 text-sm">
+          <tbody className="divide-y divide-gray-100 text-[10px] sm:text-[14px]">
             {paginatedData.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length + (actions.length > 0 ? 1 : 0)}
-                  className="px-6 py-20 text-center text-gray-500"
+                  className="px-4 sm:px-6 py-12 sm:py-20 text-center text-gray-500 text-xs sm:text-sm"
                 >
                   No records found
                 </td>
@@ -75,7 +75,7 @@ export default function Table({
 
                     if (col.render) {
                       return (
-                        <td key={colIdx} className={`px-4 py-4 ${col.className || ''}`}>
+                        <td key={colIdx} className={`px-2 sm:px-4 py-2.5 sm:py-4 ${col.className || ''}`}>
                           {col.render(row)}
                         </td>
                       );
@@ -83,11 +83,11 @@ export default function Table({
 
                     if (col.key === 'avatar' || col.key.toLowerCase().includes('avatar')) {
                       return (
-                        <td key={colIdx} className="px-4 py-4">
+                        <td key={colIdx} className="px-2 sm:px-4 py-2.5 sm:py-4">
                           <img
                             src={cellValue || '/default-avatar.png'}
                             alt="avatar"
-                            className="w-8 h-8 md:w-9 md:h-9 rounded-full object-cover border border-gray-200"
+                            className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full object-cover border border-gray-200"
                           />
                         </td>
                       );
@@ -96,7 +96,7 @@ export default function Table({
                     return (
                       <td
                         key={colIdx}
-                        className={`px-4 py-4 text-gray-700 whitespace-nowrap ${col.className || ''}`}
+                        className={`px-2 sm:px-4 py-2.5 sm:py-4 text-gray-700 whitespace-nowrap text-[11px] sm:text-sm ${col.className || ''}`}
                       >
                         {cellValue ?? '-'}
                       </td>
@@ -105,8 +105,8 @@ export default function Table({
 
                   {/* ACTIONS COLUMN */}
                   {actions.length > 0 && (
-                    <td className="px-4 py-4 sticky right-0 bg-white group-hover:bg-gray-50 z-10 border-l">
-                      <div className="flex items-center gap-1 md:gap-2 opacity-75 group-hover:opacity-100 transition-all">
+                    <td className="px-2 sm:px-4 py-2.5 sm:py-4 sticky right-0 bg-white group-hover:bg-gray-50 z-10 border-l">
+                      <div className="flex items-center  sm:gap-2 opacity-75 group-hover:opacity-100 transition-all">
                         {actions.map((action, i) => {
                           const Icon = action.icon;
                           return (
@@ -116,10 +116,14 @@ export default function Table({
                                 e.stopPropagation();
                                 onActionClick(action.id, row);
                               }}
-                              className="p-2 hover:bg-gray-100 rounded-lg transition-all active:scale-95"
+                              className="p-1 sm:p-2 hover:bg-gray-100 rounded-lg transition-all active:scale-95 "
                               title={action.label}
                             >
-                              {Icon ? <Icon size={18} className="text-gray-600" /> : action.label}
+                              {Icon ? (
+                                <Icon size={14} className="sm:w-3 sm:h-3 md:w-[16px] md:h-[16px] text-gray-600" />
+                              ) : (
+                                action.label
+                              )}
                             </button>
                           );
                         })}
@@ -135,30 +139,31 @@ export default function Table({
 
       {/* PAGINATION */}
       {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 md:px-6 py-4 border-t bg-gray-50">
-          <div className="text-xs md:text-sm text-gray-500 text-center sm:text-left">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-t bg-gray-50">
+
+          <div className="text-[11px] sm:text-xs md:text-sm text-gray-500 text-center sm:text-left">
             Showing <span className="font-medium">{startIdx + 1}</span> to{' '}
             <span className="font-medium">{Math.min(endIdx, data.length)}</span> of{' '}
             <span className="font-medium">{data.length}</span> entries
           </div>
 
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 text-sm border border-gray-300 rounded-xl hover:bg-white disabled:opacity-40 transition disabled:cursor-not-allowed"
+              className="px-2.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-sm border border-gray-300 rounded-lg sm:rounded-xl hover:bg-white disabled:opacity-40 transition disabled:cursor-not-allowed"
             >
               Previous
             </button>
 
-            <div className="px-4 py-2 text-sm font-medium bg-white border border-gray-300 rounded-xl">
+            <div className="px-2.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-sm font-medium bg-white border border-gray-300 rounded-lg sm:rounded-xl">
               Page {currentPage} of {totalPages}
             </div>
 
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 text-sm border border-gray-300 rounded-xl hover:bg-white disabled:opacity-40 transition disabled:cursor-not-allowed"
+              className="px-2.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-sm border border-gray-300 rounded-lg sm:rounded-xl hover:bg-white disabled:opacity-40 transition disabled:cursor-not-allowed"
             >
               Next
             </button>

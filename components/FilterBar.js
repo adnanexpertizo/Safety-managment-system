@@ -10,7 +10,7 @@ export default function FilterBar({
   showCategory = false,
   showEmployee = true,
   showSearch = true,
-  customStatusOptions = null,        // ← New prop for Training page
+  customStatusOptions = null,
 }) {
   const { user } = useUser();
   const isAdmin = user?.role === 'ADMIN';
@@ -32,7 +32,7 @@ export default function FilterBar({
     { value: 'Fire', label: 'Fire' },
   ];
 
-  // Default Status Options (used by Reports & Risk Assessment)
+  // Default Status Options
   const defaultStatusOptions = [
     { value: '', label: 'All Statuses' },
     { value: 'open', label: 'Open' },
@@ -40,9 +40,10 @@ export default function FilterBar({
     { value: 'closed', label: 'Closed' },
   ];
 
-  // Use custom status options if provided (for Training page)
+  // Use custom status if provided
   const statusOptions = customStatusOptions || defaultStatusOptions;
 
+  // Employee Options
   const employeeOptions = [
     { value: '', label: 'All Employees' },
     { value: 'my', label: 'My Reports' },
@@ -53,17 +54,29 @@ export default function FilterBar({
   ];
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
-      <div className="flex flex-wrap gap-4">
+    <div
+      className="
+        bg-white
+        border border-gray-200
+        rounded-xl
+        p-2 sm:p-4
+        mb-3 sm:mb-6
+        shadow-sm
+      "
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-4">
 
         {/* Report Type */}
         {showReportType && (
-          <div className="min-w-[220px] flex-1">
+          <div className="w-full">
             <CustomSelect
               label="Report Type"
               value={filters.type || ''}
               onChange={(value) =>
-                onFilterChange({ ...filters, type: value || '' })
+                onFilterChange({
+                  ...filters,
+                  type: value || '',
+                })
               }
               options={reportTypeOptions}
             />
@@ -72,25 +85,31 @@ export default function FilterBar({
 
         {/* Category */}
         {showCategory && (
-          <div className="min-w-[220px] flex-1">
+          <div className="w-full">
             <CustomSelect
               label="Category"
               value={filters.category || ''}
               onChange={(value) =>
-                onFilterChange({ ...filters, category: value || '' })
+                onFilterChange({
+                  ...filters,
+                  category: value || '',
+                })
               }
               options={categoryOptions}
             />
           </div>
         )}
 
-        {/* Status - Now supports custom options */}
-        <div className="min-w-[220px] flex-1">
+        {/* Status */}
+        <div className="w-full">
           <CustomSelect
             label="Status"
             value={filters.status || ''}
             onChange={(value) =>
-              onFilterChange({ ...filters, status: value || '' })
+              onFilterChange({
+                ...filters,
+                status: value || '',
+              })
             }
             options={statusOptions}
           />
@@ -98,12 +117,15 @@ export default function FilterBar({
 
         {/* Employee / Trainer */}
         {showEmployee && isAdmin && (
-          <div className="min-w-[220px] flex-1">
+          <div className="w-full">
             <CustomSelect
-              label="Trainer"                    // Changed label for Training page
+              label="Trainer"
               value={filters.trainerId || filters.assignedTo || ''}
               onChange={(value) =>
-                onFilterChange({ ...filters, trainerId: value || '' })
+                onFilterChange({
+                  ...filters,
+                  trainerId: value || '',
+                })
               }
               options={employeeOptions}
             />
@@ -112,19 +134,41 @@ export default function FilterBar({
 
         {/* Search */}
         {showSearch && (
-          <div className="min-w-[260px] flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <div className="w-full sm:col-span-2 xl:col-span-1">
+            <label
+              className="
+                block
+                text-[11px] sm:text-sm
+                font-medium
+                text-gray-700
+                mb-1
+              "
+            >
               Search
             </label>
+
             <input
               type="text"
               placeholder="Search..."
               value={filters.search || ''}
               onChange={(e) =>
-                onFilterChange({ ...filters, search: e.target.value })
+                onFilterChange({
+                  ...filters,
+                  search: e.target.value,
+                })
               }
-              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl 
-              focus:border-blue-600 focus:ring-0 focus:outline-none text-[15px]"
+              className="
+                w-full
+                px-2.5 sm:px-4
+                py-2 sm:py-3
+                text-xs sm:text-sm
+                bg-white
+                border border-gray-300
+                rounded-lg sm:rounded-xl
+                focus:border-blue-600
+                focus:ring-0
+                focus:outline-none
+              "
             />
           </div>
         )}
@@ -136,6 +180,7 @@ export default function FilterBar({
 // Helper Function
 function getLocalUsers() {
   if (typeof window === 'undefined') return [];
+
   try {
     return JSON.parse(localStorage.getItem('safety_users')) || [];
   } catch {

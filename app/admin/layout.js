@@ -117,7 +117,7 @@ export default function AdminLayout({ children }) {
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* Mobile Top Bar */}
-        <header className="bg-white border-b  p-2 sm:p-4 lg:p-5 flex items-center justify-between shadow-sm">
+        <header className="bg-white border-b  p-3 sm:p-4 lg:p-5 flex items-center justify-between shadow-sm">
 
           {/* Left Section */}
           <div className="flex items-center gap-3">
@@ -163,7 +163,7 @@ export default function AdminLayout({ children }) {
 
         {/* Page Content - Reduced Padding on Mobile */}
         <main className="flex-1 overflow-y-auto">
-          <div className=" p-2 sm:p-4 lg:p-5">
+          <div className=" p-3 sm:p-4 lg:p-5">
             {children}
           </div>
         </main>

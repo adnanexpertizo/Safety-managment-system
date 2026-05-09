@@ -8,13 +8,13 @@ export default function CustomSelect({
   options,
   value = '',
   onChange,
-  placeholder = "Select...",
-  minWidth = "180px", // ✅ NEW (you can control from parent if needed)
+  placeholder = 'Select...',
+  minWidth = '140px',
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
-  const selected = options?.find(opt => opt.value === value);
+  const selected = options?.find((opt) => opt.value === value);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -22,18 +22,30 @@ export default function CustomSelect({
         setIsOpen(false);
       }
     };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    return () =>
+      document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
     <div
       className="relative w-full"
       ref={ref}
-      style={{ minWidth }} // ✅ MAIN FIX
+      style={{ minWidth }}
     >
+      {/* Label */}
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label
+          className="
+            block
+            text-[11px] sm:text-sm
+            font-medium
+            text-gray-700
+            mb-1
+          "
+        >
           {label}
         </label>
       )}
@@ -41,22 +53,55 @@ export default function CustomSelect({
       {/* Select Box */}
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl flex items-center justify-between cursor-pointer hover:border-blue-500 transition-all"
+        className="
+          w-full
+          px-2.5 sm:px-4
+          py-2 sm:py-3
+          bg-white
+          border border-gray-300
+          rounded-lg sm:rounded-xl
+          flex items-center justify-between
+          cursor-pointer
+          hover:border-blue-500
+          transition-all
+        "
       >
-        <span className={value ? "text-gray-800 truncate" : "text-gray-400"}>
+        <span
+          className={`
+            truncate
+            text-xs sm:text-sm
+            ${value ? 'text-gray-800' : 'text-gray-400'}
+          `}
+        >
           {selected ? selected.label : placeholder}
         </span>
 
         <ChevronDown
-          className={`w-5 h-5 transition ${isOpen ? "rotate-180" : ""}`}
+          className={`
+            w-4 h-4 sm:w-5 sm:h-5
+            text-gray-500
+            transition-transform
+            ${isOpen ? 'rotate-180' : ''}
+          `}
         />
       </div>
 
       {/* Dropdown */}
       {isOpen && (
         <div
-          className="absolute z-50 mt-2 bg-white border border-gray-300 rounded-xl shadow-lg py-1 max-h-60 overflow-auto"
-          style={{ minWidth: '100%' }} // ✅ ensures dropdown never smaller than trigger
+          className="
+            absolute
+            z-50
+            mt-1
+            w-full
+            bg-white
+            border border-gray-300
+            rounded-lg sm:rounded-xl
+            shadow-lg
+            py-1
+            max-h-52
+            overflow-auto
+          "
         >
           {options.map((opt) => (
             <div
@@ -65,11 +110,19 @@ export default function CustomSelect({
                 onChange(opt.value);
                 setIsOpen(false);
               }}
-              className={`px-4 py-2.5 hover:bg-blue-50 cursor-pointer ${
-                value === opt.value
-                  ? 'bg-blue-50 text-blue-600 font-medium'
-                  : 'text-gray-700'
-              }`}
+              className={`
+                px-2.5 sm:px-4
+                py-2
+                text-xs sm:text-sm
+                hover:bg-blue-50
+                cursor-pointer
+                transition
+                ${
+                  value === opt.value
+                    ? 'bg-blue-50 text-blue-600 font-medium'
+                    : 'text-gray-700'
+                }
+              `}
             >
               {opt.label}
             </div>
