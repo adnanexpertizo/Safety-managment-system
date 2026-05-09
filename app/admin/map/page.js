@@ -90,10 +90,10 @@ export default function IncidentsMapPage() {
   };
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="">
 
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">Incidents Map</h1>
           <p className="text-gray-500 text-sm md:text-base">

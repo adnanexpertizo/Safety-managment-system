@@ -26,7 +26,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-6 md:space-y-8 px-4 md:px-6">
+    <div className="space-y-6 md:space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold">Enterprise Safety Dashboard</h1>

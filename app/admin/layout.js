@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -58,20 +57,18 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      
-      {/* Mobile Overlay */}
+
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
       <aside className={`fixed lg:static inset-y-0 left-0 z-50 md:w-64 w-52 bg-primary text-white flex flex-col shadow-xl
         transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
 
-        {/* Logo Header - Compact */}
+
         <div className="px-4 py-4 border-b border-white/10">
           <div className="flex items-center gap-2">
             <span className="text-2xl">🛡️</span>
@@ -79,10 +76,11 @@ export default function AdminLayout({ children }) {
               <p className="font-semibold text-base leading-none">MS Safety</p>
               <p className="text-[10px] text-gray-300">HSE System</p>
             </div>
+
           </div>
         </div>
 
-        {/* Navigation - Tight & Compact */}
+
         <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
           {menuItems.map((item) => (
             <Link
@@ -101,17 +99,8 @@ export default function AdminLayout({ children }) {
           ))}
         </nav>
 
-        {/* User & Logout - Compact */}
         <div className="p-3 border-t border-white/10">
-          <div className="flex items-center gap-3 px-3 py-2.5 bg-white/10 rounded-xl">
-            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-lg flex-shrink-0">
-              👨‍💼
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium truncate">{user.name}</p>
-              <p className="text-[10px] text-gray-300 truncate">{user.email}</p>
-            </div>
-          </div>
+
 
           <button
             onClick={() => { logout(); router.push('/'); }}
@@ -126,22 +115,55 @@ export default function AdminLayout({ children }) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        
+
         {/* Mobile Top Bar */}
-        <header className="lg:hidden bg-white border-b px-4 py-3 flex items-center justify-between">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 -ml-2 hover:bg-gray-100 rounded-lg"
-          >
-            <Menu size={22} />
-          </button>
-          <div className="font-semibold text-base">MS Safety</div>
-          <div className="w-8" />
+        <header className="bg-white border-b  p-2 sm:p-4 lg:p-5 flex items-center justify-between shadow-sm">
+
+          {/* Left Section */}
+          <div className="flex items-center gap-3">
+
+            {/* Mobile Menu */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden rounded-lg hover:bg-gray-100 transition"
+            >
+              <Menu size={22} />
+            </button>
+
+            {/* Brand */}
+            <div className="leading-tight">
+
+              <p className="md:text-md text-xs text-primary">
+                Health & Safety Management System
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3  rounded-xl hover:bg-gray-50 transition" title={`${user.name} (${user.email})`}>
+
+              <div
+                className="md:w-8 md:h-8 w-6 h-6  rounded-full bg-blue-600 
+                   flex items-center justify-center 
+                   text-white font-semibold shadow-sm"
+              >
+                {user?.name?.charAt(0)?.toUpperCase()}
+              </div>
+              <div className="hidden sm:block leading-tight">
+                <p className="text-[10px] font-semibold text-gray-800">
+                  {user.name}
+                </p>
+                <p className="text-[10px] text-gray-500">
+                  {user.email}
+                </p>
+              </div>
+            </div>
+          </div>
         </header>
 
         {/* Page Content - Reduced Padding on Mobile */}
         <main className="flex-1 overflow-y-auto">
-          <div className="p-3 sm:p-5 lg:p-8">
+          <div className=" p-2 sm:p-4 lg:p-5">
             {children}
           </div>
         </main>

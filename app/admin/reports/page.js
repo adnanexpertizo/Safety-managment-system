@@ -200,7 +200,7 @@ export default function AdminReports() {
   if (loading) return <p className="p-6 text-center text-lg">Loading reports...</p>;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
+    <div className=" bg-gray-50 min-h-screen">
       <div className="max-w-screen-2xl mx-auto space-y-6">
         
         {/* Header */}
