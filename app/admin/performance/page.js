@@ -2,7 +2,8 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { Eye } from 'lucide-react';
-import CustomSelect from '@/components/CustomSelect';
+
+import FilterBar from '@/components/FilterBar';        // ← Import FilterBar
 import Table from '@/components/Table';
 import Modal from '@/components/Modal';
 
@@ -13,12 +14,15 @@ import {
   getLocalUsers,
 } from '@/lib/localStorage';
 
-import { PERFORMANCE_SCORING } from '@/lib/localStorage';   // ← Import Scoring Constants
+import { PERFORMANCE_SCORING } from '@/lib/localStorage';
 
 export default function PerformancePage() {
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState('all');
-  const [selectedMonth, setSelectedMonth] = useState('all'); // Default: All Months
-  const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState({
+    assignedTo: 'all',     // renamed for clarity
+    month: 'all',
+    search: '',
+  });
+
   const [modal, setModal] = useState({ isOpen: false, data: null });
 
   const [employees, setEmployees] = useState([]);
@@ -36,7 +40,7 @@ export default function PerformancePage() {
 
   const months = ['All Months', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-  // Combined Closed/Completed Data
+  // Combined Closed/Completed Data with Filters
   const combinedData = useMemo(() => {
     let data = [];
 
@@ -49,7 +53,7 @@ export default function PerformancePage() {
       title: r.reportTitle || r.description?.slice(0, 60) || 'Untitled Report',
       category: r.type || '',
       severity: r.severity || '',
-      assignedTo: r.assignedName || '',
+      assignedTo: r.assignedName || r.assignedTo || '',
       date: r.dateOfIncident || r.createdAt,
       status: r.status,
       source: 'report',
@@ -65,7 +69,7 @@ export default function PerformancePage() {
       title: ra.activity,
       category: ra.hazardCategory || '',
       severity: ra.riskLevel || '',
-      assignedTo: ra.assignedName || '',
+      assignedTo: ra.assignedName || ra.assignedTo || '',
       date: ra.reviewDate || ra.createdAt,
       status: ra.status,
       source: 'risk',
@@ -81,7 +85,7 @@ export default function PerformancePage() {
       title: t.title,
       category: t.department || '',
       severity: t.score ? `${t.score}%` : '',
-      assignedTo: t.trainer || '',
+      assignedTo: t.trainer || t.trainerName || '',
       date: t.date,
       status: t.status,
       source: 'training',
@@ -90,27 +94,30 @@ export default function PerformancePage() {
 
     data = [...closedReports, ...closedRisks, ...completedTrainings];
 
-    // Filter by Month
-    if (selectedMonth !== 'all') {
+    // === Apply Filters ===
+    
+    // Month Filter
+    if (filters.month !== 'all') {
       data = data.filter(item => {
         if (!item.date) return false;
         const itemMonth = new Date(item.date).toLocaleString('default', { month: 'long' });
-        return itemMonth === selectedMonth;
+        return itemMonth === filters.month;
       });
     }
 
-    // Filter by Employee
-    if (selectedEmployeeId !== 'all') {
+    // Employee Filter
+    if (filters.assignedTo !== 'all' && filters.assignedTo !== '') {
       data = data.filter(item => 
-        item.rawData.assignedTo === selectedEmployeeId || 
-        item.rawData.trainerId === selectedEmployeeId ||
-        item.assignedTo === selectedEmployeeId
+        item.assignedTo === filters.assignedTo ||
+        item.rawData?.assignedTo === filters.assignedTo ||
+        item.rawData?.trainerId === filters.assignedTo ||
+        item.rawData?.trainer === filters.assignedTo
       );
     }
 
     // Search
-    if (search) {
-      const term = search.toLowerCase();
+    if (filters.search) {
+      const term = filters.search.toLowerCase();
       data = data.filter(item => 
         item.title?.toLowerCase().includes(term) || 
         item.assignedTo?.toLowerCase().includes(term) ||
@@ -119,22 +126,25 @@ export default function PerformancePage() {
     }
 
     return data;
-  }, [allReports, allRisks, allTrainings, selectedMonth, selectedEmployeeId, search]);
+  }, [allReports, allRisks, allTrainings, filters]);
 
   // Performance Score (Only for Specific Employee)
   const performanceScore = useMemo(() => {
-    if (selectedEmployeeId === 'all') return 0;
+    if (filters.assignedTo === 'all' || !filters.assignedTo) return 0;
 
     const closedReportsCount = allReports.filter(r => 
-      ['closed', 'resolved'].includes((r.status || '').toLowerCase()) && r.assignedTo === selectedEmployeeId
+      ['closed', 'resolved'].includes((r.status || '').toLowerCase()) && 
+      (r.assignedTo === filters.assignedTo || r.assignedName === filters.assignedTo)
     ).length;
 
     const closedRiskCount = allRisks.filter(ra => 
-      (ra.status || '').toLowerCase() === 'closed' && ra.assignedTo === selectedEmployeeId
+      (ra.status || '').toLowerCase() === 'closed' && 
+      (ra.assignedTo === filters.assignedTo || ra.assignedName === filters.assignedTo)
     ).length;
 
     const completedTrainingCount = allTrainings.filter(t => 
-      (t.status || '').toLowerCase() === 'completed' && t.trainerId === selectedEmployeeId
+      (t.status || '').toLowerCase() === 'completed' && 
+      (t.trainerId === filters.assignedTo || t.trainer === filters.assignedTo)
     ).length;
 
     let score = 0;
@@ -143,7 +153,7 @@ export default function PerformancePage() {
     score += completedTrainingCount * PERFORMANCE_SCORING.TRAINING_COMPLETED;
 
     return Math.min(PERFORMANCE_SCORING.MAX_SCORE, score);
-  }, [selectedEmployeeId, allReports, allRisks, allTrainings]);
+  }, [filters.assignedTo, allReports, allRisks, allTrainings]);
 
   const performanceLabel = performanceScore >= 80 ? 'Excellent' : 
                            performanceScore >= 60 ? 'Good' : 'Needs Improvement';
@@ -181,37 +191,16 @@ export default function PerformancePage() {
           <p className="text-gray-500">Safety Performance Dashboard</p>
         </div>
       </div>
-
-      {/* Filters */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <CustomSelect
-          options={[
-            { value: 'all', label: 'All Employees' },
-            ...employees.map(emp => ({
-              value: emp.id,
-              label: `${emp.name} - ${emp.designation || ''}`
-            }))
-          ]}
-          value={selectedEmployeeId}
-          onChange={setSelectedEmployeeId}
-        />
-
-        <CustomSelect
-          options={months.map(m => ({ value: m, label: m }))}
-          value={selectedMonth}
-          onChange={setSelectedMonth}
-        />
-
-        <div></div>
-
-        <input
-          type="text"
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="px-4 py-3 border border-gray-300 rounded-xl w-full focus:outline-none focus:border-blue-500"
-        />
-      </div>
+      <FilterBar
+        filters={filters}
+        onFilterChange={setFilters}
+        showReportType={false}
+        showCategory={false}
+        showEmployee={true}
+        showSearch={true}
+        showMonth={true}           // ← Now using CustomSelect
+        months={months}
+      />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -224,35 +213,33 @@ export default function PerformancePage() {
         ))}
       </div>
 
-      {/* Performance Score - Only show when specific employee is selected */}
-{selectedEmployeeId !== 'all' && (
-  <div className="bg-white border rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row justify-between items-center gap-6">
-    <div className="text-center md:text-left">
-      <p className="text-gray-500 text-sm">Performance Score</p>
-      <p className={`text-4xl sm:text-5xl font-bold ${performanceColor}`}>
-        {performanceScore}/100
-      </p>
-      <p className="text-sm mt-1 font-medium">{performanceLabel}</p>
-    </div>
+      {/* Performance Score */}
+      {filters.assignedTo !== 'all' && filters.assignedTo !== '' ? (
+        <div className="bg-white border rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="text-center md:text-left">
+            <p className="text-gray-500 text-sm">Performance Score</p>
+            <p className={`text-4xl sm:text-5xl font-bold ${performanceColor}`}>
+              {performanceScore}/100
+            </p>
+            <p className="text-sm mt-1 font-medium">{performanceLabel}</p>
+          </div>
 
-    <div className="w-full md:w-2/3">
-      <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-green-500 transition-all"
-          style={{ width: `${performanceScore}%` }}
-        />
-      </div>
-    </div>
-  </div>
-)}
-
-{selectedEmployeeId === 'all' && (
-  <div className="bg-white border rounded-2xl p-5 sm:p-6 flex justify-center items-center">
-    <p className="text-sm font-medium text-primary">
-      Please select an employee to view their performance score here.
-    </p>
-  </div>
-)}
+          <div className="w-full md:w-2/3">
+            <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-green-500 transition-all"
+                style={{ width: `${performanceScore}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white border rounded-2xl p-5 sm:p-6 flex justify-center items-center">
+          <p className="text-sm font-medium text-primary">
+            Please select an employee to view their performance score here.
+          </p>
+        </div>
+      )}
 
 
       {/* Main Table */}

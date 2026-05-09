@@ -10,6 +10,8 @@ export default function FilterBar({
   showCategory = false,
   showEmployee = true,
   showSearch = true,
+  showMonth = false,
+  months = [],                 
   customStatusOptions = null,
 }) {
   const { user } = useUser();
@@ -32,7 +34,7 @@ export default function FilterBar({
     { value: 'Fire', label: 'Fire' },
   ];
 
-  // Default Status Options
+  // Status Options
   const defaultStatusOptions = [
     { value: '', label: 'All Statuses' },
     { value: 'open', label: 'Open' },
@@ -40,7 +42,6 @@ export default function FilterBar({
     { value: 'closed', label: 'Closed' },
   ];
 
-  // Use custom status if provided
   const statusOptions = customStatusOptions || defaultStatusOptions;
 
   // Employee Options
@@ -53,17 +54,14 @@ export default function FilterBar({
     })),
   ];
 
+  // Month Options
+  const monthOptions = months.map(m => ({
+    value: m === 'All Months' ? 'all' : m,
+    label: m,
+  }));
+
   return (
-    <div
-      className="
-        bg-white
-        border border-gray-200
-        rounded-xl
-        p-2 sm:p-4
-        mb-3 sm:mb-6
-        shadow-sm
-      "
-    >
+    <div className="bg-white border border-gray-200 rounded-xl p-2 sm:p-4 mb-3 sm:mb-6 shadow-sm">
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-4">
 
         {/* Report Type */}
@@ -72,12 +70,7 @@ export default function FilterBar({
             <CustomSelect
               label="Report Type"
               value={filters.type || ''}
-              onChange={(value) =>
-                onFilterChange({
-                  ...filters,
-                  type: value || '',
-                })
-              }
+              onChange={(value) => onFilterChange({ ...filters, type: value || '' })}
               options={reportTypeOptions}
             />
           </div>
@@ -89,12 +82,7 @@ export default function FilterBar({
             <CustomSelect
               label="Category"
               value={filters.category || ''}
-              onChange={(value) =>
-                onFilterChange({
-                  ...filters,
-                  category: value || '',
-                })
-              }
+              onChange={(value) => onFilterChange({ ...filters, category: value || '' })}
               options={categoryOptions}
             />
           </div>
@@ -105,25 +93,21 @@ export default function FilterBar({
           <CustomSelect
             label="Status"
             value={filters.status || ''}
-            onChange={(value) =>
-              onFilterChange({
-                ...filters,
-                status: value || '',
-              })
-            }
+            onChange={(value) => onFilterChange({ ...filters, status: value || '' })}
             options={statusOptions}
           />
         </div>
 
-        {/* Employee / Trainer */}
+        {/* Employee */}
         {showEmployee && isAdmin && (
           <div className="w-full">
             <CustomSelect
-              label="Trainer"
-              value={filters.trainerId || filters.assignedTo || ''}
+              label="Employee"
+              value={filters.assignedTo || filters.trainerId || ''}
               onChange={(value) =>
                 onFilterChange({
                   ...filters,
+                  assignedTo: value || '',
                   trainerId: value || '',
                 })
               }
@@ -132,43 +116,32 @@ export default function FilterBar({
           </div>
         )}
 
+        {/* Month - Now using CustomSelect */}
+        {showMonth && monthOptions.length > 0 && (
+          <div className="w-full">
+            <CustomSelect
+              label="Month"
+              value={filters.month || 'all'}
+              onChange={(value) => onFilterChange({ ...filters, month: value })}
+              options={monthOptions}
+            />
+          </div>
+        )}
+
         {/* Search */}
         {showSearch && (
-          <div className="w-full sm:col-span-2 xl:col-span-1">
-            <label
-              className="
-                block
-                text-[11px] sm:text-sm
-                font-medium
-                text-gray-700
-                mb-1
-              "
-            >
+          <div className="w-full">
+            <label className="block text-[11px] sm:text-sm font-medium text-gray-700 mb-1">
               Search
             </label>
-
             <input
               type="text"
               placeholder="Search..."
               value={filters.search || ''}
               onChange={(e) =>
-                onFilterChange({
-                  ...filters,
-                  search: e.target.value,
-                })
+                onFilterChange({ ...filters, search: e.target.value })
               }
-              className="
-                w-full
-                px-2.5 sm:px-4
-                py-2 sm:py-3
-                text-xs sm:text-sm
-                bg-white
-                border border-gray-300
-                rounded-lg sm:rounded-xl
-                focus:border-blue-600
-                focus:ring-0
-                focus:outline-none
-              "
+              className="w-full px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg sm:rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none"
             />
           </div>
         )}
@@ -180,7 +153,6 @@ export default function FilterBar({
 // Helper Function
 function getLocalUsers() {
   if (typeof window === 'undefined') return [];
-
   try {
     return JSON.parse(localStorage.getItem('safety_users')) || [];
   } catch {

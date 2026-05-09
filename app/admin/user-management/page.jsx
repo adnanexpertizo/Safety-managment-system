@@ -2,12 +2,12 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Users, Plus, Search, Eye, Edit, Trash2 } from 'lucide-react';
+import { Users, Plus, Eye, Edit, Trash2 } from 'lucide-react';
 
+import FilterBar from '@/components/FilterBar';   // ← Import
 import Table from '@/components/Table';
 import Button from '@/components/Button';
 import Modal from '@/components/Modal';
-import CustomSelect from '@/components/CustomSelect';
 
 import {
   getLocalUsers,
@@ -23,16 +23,11 @@ export default function UserManagement() {
   const [editingUser, setEditingUser] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null });
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState('All');
-
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    role: 'OFFICER',
-    department: '',
-    designation: '',
-    status: 'Active',
+  // Unified Filters
+  const [filters, setFilters] = useState({
+    search: '',
+    department: 'All',
+    designation: 'All',
   });
 
   // Load users
@@ -44,18 +39,24 @@ export default function UserManagement() {
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
       const matchesSearch = 
-        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.designation?.toLowerCase().includes(searchTerm.toLowerCase());
+        !filters.search || 
+        user.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        user.email?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        user.designation?.toLowerCase().includes(filters.search.toLowerCase());
 
       const matchesDepartment = 
-        departmentFilter === 'All' || user.department === departmentFilter;
+        filters.department === 'All' || user.department === filters.department;
 
-      return matchesSearch && matchesDepartment;
+      const matchesDesignation = 
+        filters.designation === 'All' || user.designation === filters.designation;
+
+      return matchesSearch && matchesDepartment && matchesDesignation;
     });
-  }, [users, searchTerm, departmentFilter]);
+  }, [users, filters]);
 
+  // Dynamic Options
   const departments = ['All', ...new Set(users.map(u => u.department).filter(Boolean))];
+  const designations = ['All', ...new Set(users.map(u => u.designation).filter(Boolean))];
 
   const openModal = (user = null) => {
     if (user) {
@@ -64,12 +65,8 @@ export default function UserManagement() {
     } else {
       setEditingUser(null);
       setFormData({
-        name: '', 
-        email: '', 
-        role: 'OFFICER', 
-        department: '',
-        designation: '', 
-        status: 'Active'
+        name: '', email: '', role: 'OFFICER', department: '',
+        designation: '', status: 'Active'
       });
     }
     setIsModalOpen(true);
@@ -145,7 +142,7 @@ export default function UserManagement() {
   ];
 
   return (
-    <div className=" space-y-6 max-w-screen-2xl mx-auto">
+    <div className="space-y-6 max-w-screen-2xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -158,36 +155,26 @@ export default function UserManagement() {
           </p>
         </div>
         
-        <Button 
-          onClick={() => openModal()} 
-          className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
-        >
+        <Button onClick={() => openModal()} className="flex items-center gap-2 w-full sm:w-auto">
           <Plus size={18} /> Add New User
         </Button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-          <input
-            type="text"
-            placeholder="Search by name, email or designation..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 text-sm sm:text-base"
-          />
-        </div>
+      {/* === Unified FilterBar === */}
+      <FilterBar
+        filters={filters}
+        onFilterChange={setFilters}
+        showReportType={false}
+        showCategory={false}
+        showEmployee={false}
+        showDepartment={true}
+        showDesignation={true}
+        showSearch={true}
+        departments={departments}
+        designations={designations}
+      />
 
-        <CustomSelect
-          value={departmentFilter}
-          onChange={setDepartmentFilter}
-          options={departments.map(dep => ({ value: dep, label: dep }))}
-          className="w-full md:w-72"
-        />
-      </div>
-
-      {/* Table Container - Horizontal Scroll on Mobile */}
+      {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <Table
@@ -200,7 +187,7 @@ export default function UserManagement() {
               if (action === 'delete') setDeleteModal({ isOpen: true, id: row.id });
             }}
             maxHeight="calc(100vh - 280px)"
-            className="min-w-[900px] md:min-w-[1400px]" // Ensures table doesn't collapse too much
+            className="min-w-[900px] md:min-w-[1400px]"
           />
         </div>
       </div>
