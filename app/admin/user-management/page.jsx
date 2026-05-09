@@ -200,7 +200,7 @@ export default function UserManagement() {
               if (action === 'delete') setDeleteModal({ isOpen: true, id: row.id });
             }}
             maxHeight="calc(100vh - 280px)"
-            className="min-w-[900px]" // Ensures table doesn't collapse too much
+            className="min-w-[900px] md:min-w-[1400px]" // Ensures table doesn't collapse too much
           />
         </div>
       </div>

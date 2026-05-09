@@ -9,6 +9,7 @@ export default function Table({
   onActionClick = () => {},
   itemsPerPage = 10,
   maxHeight = '650px',
+  className = '',
 }) {
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -30,10 +31,9 @@ export default function Table({
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
       
-      {/* Table Container - Fixed Horizontal Scroll */}
       <div className="overflow-x-auto" style={{ maxHeight: maxHeight }}>
-        <table className="w-full min-w-[1100px] md:min-w-[1300px] table-auto">
-          {/* HEADER */}
+        <table className={`w-full table-auto ${className}`}>
+
           <thead className="sticky top-0 z-20 bg-gray-900 text-white">
             <tr>
               {columns.map((col, idx) => (

@@ -211,7 +211,8 @@ export default function AdminTrainings() {
             if (action === 'edit') openModal(row);
             if (action === 'delete') setDeleteModal({ isOpen: true, id: row.id });
           }}
-          maxHeight="calc(100vh - 380px)"
+          // maxHeight="calc(100vh - 380px)"
+          className="min-w-[900px] md:min-w-[1400px]"
         />
       </div>
 

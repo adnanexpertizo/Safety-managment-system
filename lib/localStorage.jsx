@@ -5,6 +5,12 @@ const STORAGE_KEYS = {
   TRAININGS: 'safety_trainings',
   EMPLOYEES: 'safety_users',
 };
+export const PERFORMANCE_SCORING = {
+  REPORT_CLOSED: 10,
+  RISK_CLOSED: 20,
+  TRAINING_COMPLETED: 20,
+  MAX_SCORE: 100,
+};
 const STATIC_TRAININGS = [
   {
     id: 'tr1',

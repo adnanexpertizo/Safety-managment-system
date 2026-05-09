@@ -260,6 +260,7 @@ export default function AdminReports() {
             if (action === 'delete') setDeleteModal({ isOpen: true, reportId: row.id });
           }}
           maxHeight="calc(100vh - 360px)"
+          className="min-w-[900px] md:min-w-[1400px]"
         />
       </div>
 
