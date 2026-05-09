@@ -8,7 +8,7 @@ export default function Table({
   actions = [],
   onActionClick = () => {},
   itemsPerPage = 10,
-  maxHeight = '650px',
+  maxHeight = '500px',
   className = '',
 }) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,32 +29,34 @@ export default function Table({
   };
 
   return (
-    <div className="bg-white border border-gray-200  sm:rounded-xl rounded-lg shadow-sm overflow-hidden">
-
-      <div className="overflow-x-auto" style={{ maxHeight: maxHeight }}>
-        <table className={`w-full table-auto ${className}`}>
-
+    <div className="bg-white border border-gray-200 sm:rounded-xl rounded-lg shadow-sm overflow-hidden">
+      
+      {/* Scrollable Container */}
+      <div 
+        className="overflow-auto" 
+        style={{ maxHeight: maxHeight }}
+      >
+        <table className={`w-full min-w-full ${className}`}>
           <thead className="sticky top-0 z-20 bg-gray-900 text-white">
             <tr>
               {columns.map((col, idx) => (
                 <th
                   key={idx}
-                  className="px-2 sm:px-4 py-2.5 sm:py-4 text-left text-[10px] sm:text-xs md:text-sm font-semibold whitespace-nowrap border-b border-gray-700"
+                  className="px-2 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-xs md:text-sm font-semibold whitespace-nowrap border-b border-gray-700"
                 >
                   {col.label}
                 </th>
               ))}
 
               {actions.length > 0 && (
-                <th className="px-2 sm:px-4 py-2.5 sm:py-4 text-left text-[10px] sm:text-xs md:text-sm font-semibold w-20 sm:w-24 md:w-28 border-b border-gray-700 sticky right-0 bg-gray-900 z-30">
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-xs md:text-sm font-semibold w-20 sm:w-24 md:w-28 border-b border-gray-700 sticky right-0 bg-gray-900 z-30">
                   Actions
                 </th>
               )}
             </tr>
           </thead>
 
-          {/* BODY */}
-          <tbody className="divide-y divide-gray-100 text-[10px] sm:text-[14px]">
+          <tbody className="divide-y divide-gray-100 text-[10px] sm:text-sm">
             {paginatedData.length === 0 ? (
               <tr>
                 <td
@@ -75,7 +77,7 @@ export default function Table({
 
                     if (col.render) {
                       return (
-                        <td key={colIdx} className={`px-2 sm:px-4 py-2.5 sm:py-4 ${col.className || ''}`}>
+                        <td key={colIdx} className={`px-2 sm:px-4 py-2 sm:py-3 ${col.className || ''}`}>
                           {col.render(row)}
                         </td>
                       );
@@ -83,7 +85,7 @@ export default function Table({
 
                     if (col.key === 'avatar' || col.key.toLowerCase().includes('avatar')) {
                       return (
-                        <td key={colIdx} className="px-2 sm:px-4 py-2.5 sm:py-4">
+                        <td key={colIdx} className="px-2 sm:px-4 py-2 sm:py-3">
                           <img
                             src={cellValue || '/default-avatar.png'}
                             alt="avatar"
@@ -96,17 +98,17 @@ export default function Table({
                     return (
                       <td
                         key={colIdx}
-                        className={`px-2 sm:px-4 py-2.5 sm:py-4 text-gray-700 whitespace-nowrap text-[11px] sm:text-sm ${col.className || ''}`}
+                        className={`px-2 sm:px-4 py-2 sm:py-3 text-gray-700 whitespace-nowrap text-[11px] sm:text-sm ${col.className || ''}`}
                       >
                         {cellValue ?? '-'}
                       </td>
                     );
                   })}
 
-                  {/* ACTIONS COLUMN */}
+                  {/* Actions Column */}
                   {actions.length > 0 && (
-                    <td className="px-2 sm:px-4 py-2.5 sm:py-4 sticky right-0 bg-white group-hover:bg-gray-50 z-10 border-l">
-                      <div className="flex items-center  sm:gap-2 opacity-75 group-hover:opacity-100 transition-all">
+                    <td className="px-2 sm:px-4 py-2 sm:py-3 sticky right-0 bg-white group-hover:bg-gray-50 z-10 border-l">
+                      <div className="flex items-center sm:gap-2 opacity-75 group-hover:opacity-100 transition-all">
                         {actions.map((action, i) => {
                           const Icon = action.icon;
                           return (
@@ -116,14 +118,10 @@ export default function Table({
                                 e.stopPropagation();
                                 onActionClick(action.id, row);
                               }}
-                              className="p-1 sm:p-2 hover:bg-gray-100 rounded-lg transition-all active:scale-95 "
+                              className="p-1 sm:p-2 hover:bg-gray-100 rounded-lg transition-all active:scale-95"
                               title={action.label}
                             >
-                              {Icon ? (
-                                <Icon size={14} className="sm:w-3 sm:h-3 md:w-[16px] md:h-[16px] text-gray-600" />
-                              ) : (
-                                action.label
-                              )}
+                              {Icon ? <Icon size={14} className="text-gray-600" /> : action.label}
                             </button>
                           );
                         })}
@@ -137,10 +135,9 @@ export default function Table({
         </table>
       </div>
 
-      {/* PAGINATION */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-t bg-gray-50">
-
           <div className="text-[11px] sm:text-xs md:text-sm text-gray-500 text-center sm:text-left">
             Showing <span className="font-medium">{startIdx + 1}</span> to{' '}
             <span className="font-medium">{Math.min(endIdx, data.length)}</span> of{' '}

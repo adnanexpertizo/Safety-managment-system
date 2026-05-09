@@ -9,9 +9,13 @@ export default function FilterBar({
   showReportType = false,
   showCategory = false,
   showEmployee = true,
-  showSearch = true,
+  showDepartment = false,
+  showDesignation = false,
   showMonth = false,
-  months = [],                 
+  showSearch = true,
+  departments = [],
+  designations = [],
+  months = [],
   customStatusOptions = null,
 }) {
   const { user } = useUser();
@@ -48,7 +52,7 @@ export default function FilterBar({
   const employeeOptions = [
     { value: '', label: 'All Employees' },
     { value: 'my', label: 'My Reports' },
-    ...getLocalUsers().map((emp) => ({
+    ...getLocalUsers()?.map((emp) => ({
       value: emp.id,
       label: emp.name,
     })),
@@ -101,36 +105,44 @@ export default function FilterBar({
         {/* Employee */}
         {showEmployee && isAdmin && (
           <div className="w-full">
+            <CustomSelect label="Employee" value={filters.assignedTo || ''} onChange={(v) => onFilterChange({ ...filters, assignedTo: v || '' })} options={employeeOptions} />
+          </div>
+        )}
+
+        {/* Department */}
+        {showDepartment && departments.length > 0 && (
+          <div className="w-full">
             <CustomSelect
-              label="Employee"
-              value={filters.assignedTo || filters.trainerId || ''}
-              onChange={(value) =>
-                onFilterChange({
-                  ...filters,
-                  assignedTo: value || '',
-                  trainerId: value || '',
-                })
-              }
-              options={employeeOptions}
+              label="Department"
+              value={filters.department || 'All'}
+              onChange={(v) => onFilterChange({ ...filters, department: v })}
+              options={departments.map(dep => ({ value: dep, label: dep }))}
             />
           </div>
         )}
 
-        {/* Month - Now using CustomSelect */}
-        {showMonth && monthOptions.length > 0 && (
+        {/* Designation */}
+        {showDesignation && designations.length > 0 && (
           <div className="w-full">
             <CustomSelect
-              label="Month"
-              value={filters.month || 'all'}
-              onChange={(value) => onFilterChange({ ...filters, month: value })}
-              options={monthOptions}
+              label="Designation"
+              value={filters.designation || 'All'}
+              onChange={(v) => onFilterChange({ ...filters, designation: v })}
+              options={designations.map(des => ({ value: des, label: des }))}
             />
+          </div>
+        )}
+
+        {/* Month */}
+        {showMonth && monthOptions.length > 0 && (
+          <div className="w-full">
+            <CustomSelect label="Month" value={filters.month || 'all'} onChange={(v) => onFilterChange({ ...filters, month: v })} options={monthOptions} />
           </div>
         )}
 
         {/* Search */}
         {showSearch && (
-          <div className="w-full">
+          <div className="w-full sm:col-span-2 xl:col-span-1">
             <label className="block text-[11px] sm:text-sm font-medium text-gray-700 mb-1">
               Search
             </label>
@@ -138,9 +150,7 @@ export default function FilterBar({
               type="text"
               placeholder="Search..."
               value={filters.search || ''}
-              onChange={(e) =>
-                onFilterChange({ ...filters, search: e.target.value })
-              }
+              onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
               className="w-full px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg sm:rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none"
             />
           </div>
