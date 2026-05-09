@@ -69,7 +69,7 @@ export default function AdminLayout({ children }) {
         transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
 
 
-        <div className="px-4 py-4 border-b border-white/10">
+        <div className="px-4 py-6 md:py-4 border-b border-white/10">
           <div className="flex items-center gap-2">
             <span className="text-2xl">🛡️</span>
             <div>
@@ -87,7 +87,7 @@ export default function AdminLayout({ children }) {
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`group flex items-center gap-2.5 px-3 md:my-3 py-2.5 rounded-xl text-sm font-medium transition-all
+              className={`group flex items-center gap-2.5 px-3 md:my-3 py-4 rounded-xl text-sm font-medium transition-all
                 ${isActive(item.href)
                   ? 'bg-white/20 text-white'
                   : 'text-gray-300 hover:bg-white/10 hover:text-white'

@@ -55,11 +55,11 @@ export default function CustomSelect({
         onClick={() => setIsOpen(!isOpen)}
         className="
           w-full
-          px-2.5 sm:px-4
+          px-2 sm:px-4
           py-2 sm:py-3
           bg-white
           border border-gray-300
-          rounded-lg sm:rounded-xl
+          rounded-md sm:rounded-lg
           flex items-center justify-between
           cursor-pointer
           hover:border-blue-500

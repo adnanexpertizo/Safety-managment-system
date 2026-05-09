@@ -45,7 +45,7 @@ export default function PerformancePage() {
     let data = [];
 
     // Closed Reports
-    const closedReports = allReports.filter(r => 
+    const closedReports = allReports.filter(r =>
       ['closed', 'resolved'].includes((r.status || '').toLowerCase())
     ).map(r => ({
       id: r.id,
@@ -61,7 +61,7 @@ export default function PerformancePage() {
     }));
 
     // Closed Risk Assessments
-    const closedRisks = allRisks.filter(ra => 
+    const closedRisks = allRisks.filter(ra =>
       (ra.status || '').toLowerCase() === 'closed'
     ).map(ra => ({
       id: ra.id,
@@ -77,7 +77,7 @@ export default function PerformancePage() {
     }));
 
     // Completed Trainings
-    const completedTrainings = allTrainings.filter(t => 
+    const completedTrainings = allTrainings.filter(t =>
       (t.status || '').toLowerCase() === 'completed'
     ).map(t => ({
       id: t.id,
@@ -95,7 +95,7 @@ export default function PerformancePage() {
     data = [...closedReports, ...closedRisks, ...completedTrainings];
 
     // === Apply Filters ===
-    
+
     // Month Filter
     if (filters.month !== 'all') {
       data = data.filter(item => {
@@ -107,7 +107,7 @@ export default function PerformancePage() {
 
     // Employee Filter
     if (filters.assignedTo !== 'all' && filters.assignedTo !== '') {
-      data = data.filter(item => 
+      data = data.filter(item =>
         item.assignedTo === filters.assignedTo ||
         item.rawData?.assignedTo === filters.assignedTo ||
         item.rawData?.trainerId === filters.assignedTo ||
@@ -118,8 +118,8 @@ export default function PerformancePage() {
     // Search
     if (filters.search) {
       const term = filters.search.toLowerCase();
-      data = data.filter(item => 
-        item.title?.toLowerCase().includes(term) || 
+      data = data.filter(item =>
+        item.title?.toLowerCase().includes(term) ||
         item.assignedTo?.toLowerCase().includes(term) ||
         item.category?.toLowerCase().includes(term)
       );
@@ -132,18 +132,18 @@ export default function PerformancePage() {
   const performanceScore = useMemo(() => {
     if (filters.assignedTo === 'all' || !filters.assignedTo) return 0;
 
-    const closedReportsCount = allReports.filter(r => 
-      ['closed', 'resolved'].includes((r.status || '').toLowerCase()) && 
+    const closedReportsCount = allReports.filter(r =>
+      ['closed', 'resolved'].includes((r.status || '').toLowerCase()) &&
       (r.assignedTo === filters.assignedTo || r.assignedName === filters.assignedTo)
     ).length;
 
-    const closedRiskCount = allRisks.filter(ra => 
-      (ra.status || '').toLowerCase() === 'closed' && 
+    const closedRiskCount = allRisks.filter(ra =>
+      (ra.status || '').toLowerCase() === 'closed' &&
       (ra.assignedTo === filters.assignedTo || ra.assignedName === filters.assignedTo)
     ).length;
 
-    const completedTrainingCount = allTrainings.filter(t => 
-      (t.status || '').toLowerCase() === 'completed' && 
+    const completedTrainingCount = allTrainings.filter(t =>
+      (t.status || '').toLowerCase() === 'completed' &&
       (t.trainerId === filters.assignedTo || t.trainer === filters.assignedTo)
     ).length;
 
@@ -155,11 +155,11 @@ export default function PerformancePage() {
     return Math.min(PERFORMANCE_SCORING.MAX_SCORE, score);
   }, [filters.assignedTo, allReports, allRisks, allTrainings]);
 
-  const performanceLabel = performanceScore >= 80 ? 'Excellent' : 
-                           performanceScore >= 60 ? 'Good' : 'Needs Improvement';
+  const performanceLabel = performanceScore >= 80 ? 'Excellent' :
+    performanceScore >= 60 ? 'Good' : 'Needs Improvement';
 
-  const performanceColor = performanceScore >= 80 ? 'text-green-600' : 
-                           performanceScore >= 60 ? 'text-yellow-600' : 'text-red-600';
+  const performanceColor = performanceScore >= 80 ? 'text-green-600' :
+    performanceScore >= 60 ? 'text-yellow-600' : 'text-red-600';
 
   const columns = [
     { key: 'type', label: 'Type' },
@@ -184,13 +184,16 @@ export default function PerformancePage() {
 
   return (
     <div className="w-full max-w-screen-2xl mx-auto  space-y-6">
-      
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Employee Performance</h1>
-          <p className="text-gray-500">Safety Performance Dashboard</p>
-        </div>
+      <div className="min-w-0">
+        <h1 className="text-md sm:text-lg lg:text-2xl font-bold text-gray-900 truncate">
+          Employee Performanc
+        </h1>
+
+        <p className="text-[12px] sm:text-sm lg:text-base text-gray-500 truncate">
+          Safety Performance Dashboard
+        </p>
       </div>
+
       <FilterBar
         filters={filters}
         onFilterChange={setFilters}
@@ -291,10 +294,10 @@ export default function PerformancePage() {
             <div>
               <p className="text-sm text-gray-500 mb-2">Details</p>
               <p className="bg-gray-50 p-5 rounded-2xl text-gray-700 leading-relaxed">
-                {modal.data.rawData?.description || 
-                 modal.data.rawData?.hazard || 
-                 modal.data.rawData?.title || 
-                 "No additional details available."}
+                {modal.data.rawData?.description ||
+                  modal.data.rawData?.hazard ||
+                  modal.data.rawData?.title ||
+                  "No additional details available."}
               </p>
             </div>
           </div>

@@ -182,14 +182,14 @@ export default function AdminRiskAssessments() {
     { key: 'likelihood', label: 'L' },
     { key: 'severity', label: 'S' },
     { key: 'riskScore', label: 'Score' },
-    { 
-      key: 'riskLevel', 
+    {
+      key: 'riskLevel',
       label: 'Risk Level',
       render: (row) => (
         <span className={`px-3 py-1 rounded-full text-xs font-medium
-          ${row.riskLevel === 'High' ? 'bg-red-100 text-red-700' : 
-            row.riskLevel === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 
-            'bg-green-100 text-green-700'}`}>
+          ${row.riskLevel === 'High' ? 'bg-red-100 text-red-700' :
+            row.riskLevel === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+              'bg-green-100 text-green-700'}`}>
           {row.riskLevel}
         </span>
       )
@@ -204,30 +204,31 @@ export default function AdminRiskAssessments() {
   return (
     <div className=" bg-gray-50 min-h-screen">
       <div className="max-w-screen-2xl mx-auto space-y-6">
-        
+
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+        <div className="flex items-end justify-between gap-2 sm:gap-4 flex-nowrap">
+          <div className="min-w-0">
+            <h1 className="text-md sm:text-lg lg:text-2xl font-bold text-gray-900 truncate">
               Risk Assessments
             </h1>
-            <p className="text-gray-500 text-sm sm:text-base mt-1">
-              HSE Risk Management & Hazard Control System
+
+            <p className="text-[10px] sm:text-sm lg:text-base text-gray-500 truncate">
+              HSE Risk Management 
             </p>
           </div>
-          <Button 
-            onClick={() => openModal()} 
-            className="w-full sm:w-auto px-6 py-3 text-base"
+
+          <Button
+            onClick={() => openModal()}
+            className=" px-2 sm:px-6 py-2 text-[10px] sm:text-sm lg:text-base"
           >
             + New Risk Assessment
           </Button>
         </div>
-
         {/* Filter Bar */}
-        <FilterBar 
-          filters={filters} 
+        <FilterBar
+          filters={filters}
           onFilterChange={setFilters}
-          showCategory={true}           
+          showCategory={true}
           showReportType={false}
         />
 
@@ -246,15 +247,15 @@ export default function AdminRiskAssessments() {
           columns={columns}
           data={filteredData}
           actions={[
-            { 
-              id: 'edit', 
-              label: 'Edit', 
-              icon: Edit 
+            {
+              id: 'edit',
+              label: 'Edit',
+              icon: Edit
             },
-            { 
-              id: 'delete', 
-              label: 'Delete', 
-              icon: Trash2 
+            {
+              id: 'delete',
+              label: 'Delete',
+              icon: Trash2
             },
           ]}
           onActionClick={(action, row) => {
@@ -275,7 +276,7 @@ export default function AdminRiskAssessments() {
         size="xl"
       >
         <div className="space-y-5 sm:space-y-6 max-h-[70vh] overflow-y-auto pr-2 py-3">
-          
+
           <CustomSelect
             label="Assign To Employee"
             value={formData.assignedTo}
@@ -287,25 +288,25 @@ export default function AdminRiskAssessments() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <input 
-              placeholder="Activity" 
-              value={formData.activity} 
-              onChange={(e) => setFormData({ ...formData, activity: e.target.value })} 
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+            <input
+              placeholder="Activity"
+              value={formData.activity}
+              onChange={(e) => setFormData({ ...formData, activity: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none"
             />
-            <input 
-              placeholder="Location" 
-              value={formData.location} 
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })} 
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+            <input
+              placeholder="Location"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none"
             />
           </div>
 
-          <textarea 
-            placeholder="Hazard Description" 
-            value={formData.hazard} 
-            onChange={(e) => setFormData({ ...formData, hazard: e.target.value })} 
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+          <textarea
+            placeholder="Hazard Description"
+            value={formData.hazard}
+            onChange={(e) => setFormData({ ...formData, hazard: e.target.value })}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none"
             rows={3}
           />
 
@@ -324,85 +325,85 @@ export default function AdminRiskAssessments() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Likelihood (1-5)</label>
-              <input 
-                type="number" 
-                min="1" 
-                max="5" 
-                value={formData.likelihood} 
-                onChange={(e) => setFormData({ ...formData, likelihood: Number(e.target.value) })} 
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+              <input
+                type="number"
+                min="1"
+                max="5"
+                value={formData.likelihood}
+                onChange={(e) => setFormData({ ...formData, likelihood: Number(e.target.value) })}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Severity (1-5)</label>
-              <input 
-                type="number" 
-                min="1" 
-                max="5" 
-                value={formData.severity} 
-                onChange={(e) => setFormData({ ...formData, severity: Number(e.target.value) })} 
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+              <input
+                type="number"
+                min="1"
+                max="5"
+                value={formData.severity}
+                onChange={(e) => setFormData({ ...formData, severity: Number(e.target.value) })}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none"
               />
             </div>
           </div>
 
-          <textarea 
-            placeholder="Existing Controls" 
-            value={formData.existingControls} 
-            onChange={(e) => setFormData({ ...formData, existingControls: e.target.value })} 
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+          <textarea
+            placeholder="Existing Controls"
+            value={formData.existingControls}
+            onChange={(e) => setFormData({ ...formData, existingControls: e.target.value })}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none"
             rows={3}
           />
 
-          <textarea 
-            placeholder="Additional Controls" 
-            value={formData.additionalControls} 
-            onChange={(e) => setFormData({ ...formData, additionalControls: e.target.value })} 
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+          <textarea
+            placeholder="Additional Controls"
+            value={formData.additionalControls}
+            onChange={(e) => setFormData({ ...formData, additionalControls: e.target.value })}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none"
             rows={3}
           />
 
-          <input 
-            placeholder="PPE Required" 
-            value={formData.ppeRequired} 
-            onChange={(e) => setFormData({ ...formData, ppeRequired: e.target.value })} 
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+          <input
+            placeholder="PPE Required"
+            value={formData.ppeRequired}
+            onChange={(e) => setFormData({ ...formData, ppeRequired: e.target.value })}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none"
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Review Date</label>
-              <input 
-                type="date" 
-                value={formData.reviewDate} 
-                onChange={(e) => setFormData({ ...formData, reviewDate: e.target.value })} 
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+              <input
+                type="date"
+                value={formData.reviewDate}
+                onChange={(e) => setFormData({ ...formData, reviewDate: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none"
               />
             </div>
-            <CustomSelect 
-              label="Status" 
-              value={formData.status} 
-              onChange={(v) => setFormData({ ...formData, status: v })} 
+            <CustomSelect
+              label="Status"
+              value={formData.status}
+              onChange={(v) => setFormData({ ...formData, status: v })}
               options={[
                 { value: 'open', label: 'Open' },
                 { value: 'in-progress', label: 'In Progress' },
                 { value: 'closed', label: 'Closed' }
-              ]} 
+              ]}
             />
           </div>
 
-          <textarea 
-            placeholder="Legal Requirement" 
-            value={formData.legalRequirement} 
-            onChange={(e) => setFormData({ ...formData, legalRequirement: e.target.value })} 
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none" 
+          <textarea
+            placeholder="Legal Requirement"
+            value={formData.legalRequirement}
+            onChange={(e) => setFormData({ ...formData, legalRequirement: e.target.value })}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-600 focus:outline-none"
             rows={2}
           />
 
           {/* Image Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Upload Risk Image</label>
-            <div 
+            <div
               className="border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-2xl p-6 sm:p-8 text-center cursor-pointer bg-gray-50"
               onClick={() => document.getElementById('fileUpload').click()}
             >
@@ -411,10 +412,10 @@ export default function AdminRiskAssessments() {
               <p className="text-xs text-gray-400 mt-1">PNG, JPG (Max 5MB)</p>
             </div>
             {imagePreview && (
-              <img 
-                src={imagePreview} 
-                alt="Preview" 
-                className="mt-4 max-h-72 mx-auto rounded-xl shadow-sm" 
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="mt-4 max-h-72 mx-auto rounded-xl shadow-sm"
               />
             )}
           </div>

@@ -78,10 +78,10 @@ export default function AdminTrainings() {
   const scheduled = filteredTrainings.filter(t => t.status === 'Scheduled').length;
   const avgScore = filteredTrainings.filter(t => t.score).length > 0
     ? Math.round(
-        filteredTrainings.filter(t => t.score)
-          .reduce((sum, t) => sum + Number(t.score), 0) /
-        filteredTrainings.filter(t => t.score).length
-      )
+      filteredTrainings.filter(t => t.score)
+        .reduce((sum, t) => sum + Number(t.score), 0) /
+      filteredTrainings.filter(t => t.score).length
+    )
     : 0;
 
   const handleTrainerSelect = (trainerId) => {
@@ -149,24 +149,27 @@ export default function AdminTrainings() {
   return (
     <div className=" bg-gray-50 min-h-screen">
       <div className="max-w-screen-2xl mx-auto space-y-6">
-        
+
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+        <div className="flex items-end justify-between gap-2 sm:gap-4 flex-nowrap">
+          <div className="min-w-0">
+            <h1 className="text-md sm:text-lg lg:text-2xl font-bold text-gray-900 truncate">
               Training & Compliance
             </h1>
-            <p className="text-gray-500 text-sm sm:text-base mt-1">
+
+            <p className="text-[12px] sm:text-sm lg:text-base text-gray-500 truncate">
               Employee Safety Training Management
             </p>
           </div>
-          <Button 
-            onClick={() => openModal()} 
+
+          <Button
+            onClick={() => openModal()}
             className="w-full sm:w-auto px-6 py-3"
           >
             + New Training
           </Button>
         </div>
+
 
         {/* FilterBar */}
         <FilterBar
@@ -196,15 +199,15 @@ export default function AdminTrainings() {
           columns={columns}
           data={filteredTrainings}
           actions={[
-            { 
-              id: 'edit', 
-              label: 'Edit', 
-              icon: Edit 
+            {
+              id: 'edit',
+              label: 'Edit',
+              icon: Edit
             },
-            { 
-              id: 'delete', 
-              label: 'Delete', 
-              icon: Trash2 
+            {
+              id: 'delete',
+              label: 'Delete',
+              icon: Trash2
             },
           ]}
           onActionClick={(action, row) => {

@@ -8,7 +8,7 @@ export default function Button({
   className = '',
   ...props
 }) {
-  const baseStyles = 'font-medium rounded-md transition-colors duration-200 flex items-center gap-2 justify-center';
+  const baseStyles = 'font-medium rounded-sm rounded-md transition-colors duration-200 flex items-center gap-2 justify-center';
 
   const variantStyles = {
     primary: 'bg-primary text-primary-foreground hover:bg-opacity-90 disabled:opacity-50',
@@ -19,9 +19,9 @@ export default function Button({
   };
 
   const sizeStyles = {
-    sm: 'px-3 py-1.5 text-[13px]',
-    md: 'px-4 py-2 text-[15px]',
-    lg: 'px-6 py-3 text-[15px]',
+    sm: 'px-2 py-1 text-[8px]',
+    md: 'px-4 py-2 text-[10px]',
+    lg: 'px-6 py-3 text-[12px]',
   };
 
   const finalClassName = `${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`;

@@ -75,7 +75,7 @@ export default function AdminReports() {
       if (filters.assignedTo === 'my') {
         // Add your own logic here if needed
       } else {
-      filtered = filtered.filter(r => r.assignedTo === filters.assignedTo);
+        filtered = filtered.filter(r => r.assignedTo === filters.assignedTo);
       }
     }
     if (filters.search) {
@@ -202,28 +202,31 @@ export default function AdminReports() {
   return (
     <div className=" bg-gray-50 min-h-screen">
       <div className="max-w-screen-2xl mx-auto space-y-6">
-        
+
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+        <div className="flex items-end justify-between gap-2 sm:gap-4 flex-nowrap">
+          <div className="min-w-0">
+            <h1 className="text-md sm:text-lg lg:text-2xl font-bold text-gray-900 truncate">
               All Reports
             </h1>
-            <p className="text-gray-500 text-sm sm:text-base mt-1">
+
+            <p className="text-[10px] sm:text-sm lg:text-base text-gray-500 truncate">
               Incident, Near Miss & Hazard Management
             </p>
           </div>
-          <Button 
-            onClick={() => openModal()} 
-            className="w-full sm:w-auto px-6 py-3 text-base"
+
+          <Button
+            onClick={() => openModal()}
+            className=" sm:w-auto px-6 py-3 text-base"
           >
             + New Report
           </Button>
         </div>
 
+
         {/* Filter Bar */}
-        <FilterBar 
-          filters={filters} 
+        <FilterBar
+          filters={filters}
           onFilterChange={setFilters}
           showReportType={true}
           showCategory={false}
@@ -244,15 +247,15 @@ export default function AdminReports() {
           columns={columns}
           data={filteredReports}
           actions={[
-            { 
-              id: 'edit', 
-              label: 'Edit', 
-              icon: Edit 
+            {
+              id: 'edit',
+              label: 'Edit',
+              icon: Edit
             },
-            { 
-              id: 'delete', 
-              label: 'Delete', 
-              icon: Trash2 
+            {
+              id: 'delete',
+              label: 'Delete',
+              icon: Trash2
             },
           ]}
           onActionClick={(action, row) => {
@@ -289,71 +292,71 @@ export default function AdminReports() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <CustomSelect 
-              label="Report Type" 
-              value={formData.type} 
+            <CustomSelect
+              label="Report Type"
+              value={formData.type}
               onChange={(v) => setFormData({ ...formData, type: v })}
               options={[
-                {value:'incident', label:'Incident'},
-                {value:'near_miss', label:'Near Miss'},
-                {value:'hazard', label:'Hazard'}
-              ]} 
+                { value: 'incident', label: 'Incident' },
+                { value: 'near_miss', label: 'Near Miss' },
+                { value: 'hazard', label: 'Hazard' }
+              ]}
             />
 
-            <CustomSelect 
-              label="Severity" 
-              value={formData.severity} 
+            <CustomSelect
+              label="Severity"
+              value={formData.severity}
               onChange={(v) => setFormData({ ...formData, severity: v })}
               options={[
-                {value:'low', label:'Low'},
-                {value:'medium', label:'Medium'},
-                {value:'high', label:'High'}
-              ]} 
+                { value: 'low', label: 'Low' },
+                { value: 'medium', label: 'Medium' },
+                { value: 'high', label: 'High' }
+              ]}
             />
           </div>
 
           {/* Rest of the form remains same as you provided */}
           <div className="grid grid-cols-2 gap-6">
-            <CustomSelect 
-              label="Potential Severity" 
-              value={formData.potentialSeverity} 
+            <CustomSelect
+              label="Potential Severity"
+              value={formData.potentialSeverity}
               onChange={(v) => setFormData({ ...formData, potentialSeverity: v })}
               options={[
-                {value:'low', label:'Low'},
-                {value:'medium', label:'Medium'},
-                {value:'high', label:'High'}
-              ]} 
+                { value: 'low', label: 'Low' },
+                { value: 'medium', label: 'Medium' },
+                { value: 'high', label: 'High' }
+              ]}
             />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Date & Time of Incident</label>
-              <input 
-                type="datetime-local" 
-                value={formData.dateOfIncident} 
+              <input
+                type="datetime-local"
+                value={formData.dateOfIncident}
                 onChange={(e) => setFormData({ ...formData, dateOfIncident: e.target.value })}
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none" 
+                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Location</label>
-            <input 
-              placeholder="Exact location" 
-              value={formData.location} 
+            <input
+              placeholder="Exact location"
+              value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none" 
+              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
-            <textarea 
-              placeholder="Detailed description..." 
-              value={formData.description} 
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })} 
+            <textarea
+              placeholder="Detailed description..."
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={4}
-              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none resize-y" 
+              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none resize-y"
             />
           </div>
 
@@ -376,7 +379,7 @@ export default function AdminReports() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Upload Evidence</label>
             <div className="border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-2xl p-8 text-center cursor-pointer bg-gray-50"
-                 onClick={() => document.getElementById('fileUpload').click()}>
+              onClick={() => document.getElementById('fileUpload').click()}>
               <input id="fileUpload" type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
               <p className="text-gray-600">📸 Click to upload image</p>
             </div>

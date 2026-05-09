@@ -66,7 +66,7 @@ export default function FilterBar({
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-2 sm:p-4 mb-3 sm:mb-6 shadow-sm">
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-4">
 
         {/* Report Type */}
         {showReportType && (
@@ -151,7 +151,7 @@ export default function FilterBar({
               placeholder="Search..."
               value={filters.search || ''}
               onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
-              className="w-full px-2.5 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg sm:rounded-xl focus:border-blue-600 focus:ring-0 focus:outline-none"
+              className="w-full px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-md sm:rounded-lg focus:border-blue-600 focus:ring-0 focus:outline-none"
             />
           </div>
         )}

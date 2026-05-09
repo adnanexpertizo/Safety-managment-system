@@ -31,8 +31,8 @@ export default function SummaryCards({
           key={index}
           className="
             bg-white
-            rounded-2xl sm:rounded-3xl
-            p-3 sm:p-4 lg:p-5
+            rounded-xl sm:rounded-2xl
+            p-2 sm:p-3 lg:p-5
             flex flex-col items-center justify-center
             text-center
             border border-gray-100
@@ -43,7 +43,7 @@ export default function SummaryCards({
         >
 
           {/* Icon */}
-          <div className="text-2xl sm:text-3xl lg:text-4xl mb-1 sm:mb-2">
+          <div className="text-xl sm:text-2xl lg:text-4xl mb-1 sm:mb-2">
             {card.icon}
           </div>
 
@@ -63,7 +63,7 @@ export default function SummaryCards({
           <p
             className={`
               mt-1
-              text-xl sm:text-3xl lg:text-4xl
+              text-xl sm:text-2xl lg:text-4xl
               font-bold
               truncate
               ${card.color || 'text-gray-900'}

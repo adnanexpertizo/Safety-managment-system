@@ -145,23 +145,25 @@ export default function UserManagement() {
   return (
     <div className="space-y-6 max-w-screen-2xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
+      <div className="flex items-end justify-between gap-2 sm:gap-4 flex-nowrap">
+        <div className="min-w-0">
+          <h1 className="text-md sm:text-lg lg:text-2xl flex gap-2 align-middle items-center mb-2 font-bold text-gray-900 truncate">
             <Users className="w-7 h-7 sm:w-8 sm:h-8" /> User Management
           </h1>
-          <p className="text-gray-500 mt-1 text-sm sm:text-base">
+
+          <p className="text-[12px] sm:text-sm lg:text-base text-gray-500 truncate">
             Manage employees, roles, and access
           </p>
         </div>
 
         <Button
           onClick={() => openModal()}
-          className="flex items-center gap-2 w-full sm:w-auto"
+          className="flex items-center gap-2 sm:w-auto"
         >
           <Plus size={18} /> Add New User
         </Button>
       </div>
+
 
       {/* Unified FilterBar */}
       <FilterBar

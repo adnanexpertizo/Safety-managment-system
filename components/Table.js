@@ -37,7 +37,7 @@ export default function Table({
         style={{ maxHeight: maxHeight }}
       >
         <table className={`w-full min-w-full ${className}`}>
-          <thead className="sticky top-0 z-20 bg-gray-900 text-white">
+          <thead className="sticky top-0 z-20 bg-primary text-white">
             <tr>
               {columns.map((col, idx) => (
                 <th
@@ -49,7 +49,7 @@ export default function Table({
               ))}
 
               {actions.length > 0 && (
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-[10px] sm:text-xs md:text-sm font-semibold w-20 sm:w-24 md:w-28 border-b border-gray-700 sticky right-0 bg-gray-900 z-30">
+                <th className="px-1 sm:px-2 py-2 sm:py-3 text-left text-[10px] sm:text-xs md:text-sm font-semibold  flex justify-center  border-b border-gray-700 sticky right-0 bg-primary z-30">
                   Actions
                 </th>
               )}
@@ -98,7 +98,7 @@ export default function Table({
                     return (
                       <td
                         key={colIdx}
-                        className={`px-2 sm:px-4 py-2 sm:py-3 text-gray-700 whitespace-nowrap text-[11px] sm:text-sm ${col.className || ''}`}
+                        className={`px-1 sm:px-2 py-2 sm:py-3 text-gray-700 whitespace-nowrap text-[11px] sm:text-sm ${col.className || ''}`}
                       >
                         {cellValue ?? '-'}
                       </td>
@@ -107,8 +107,8 @@ export default function Table({
 
                   {/* Actions Column */}
                   {actions.length > 0 && (
-                    <td className="px-2 sm:px-4 py-2 sm:py-3 sticky right-0 bg-white group-hover:bg-gray-50 z-10 border-l">
-                      <div className="flex items-center sm:gap-2 opacity-75 group-hover:opacity-100 transition-all">
+                    <td className="px-1 sm:px-2 py-2 sm:py-3 sticky right-0 bg-white group-hover:bg-gray-50 z-10 border-l">
+                      <div className="flex items-center justify-center  opacity-75 group-hover:opacity-100 transition-all">
                         {actions.map((action, i) => {
                           const Icon = action.icon;
                           return (
@@ -118,10 +118,10 @@ export default function Table({
                                 e.stopPropagation();
                                 onActionClick(action.id, row);
                               }}
-                              className="p-1 sm:p-2 hover:bg-gray-100 rounded-lg transition-all active:scale-95"
+                              className="p-1 hover:bg-gray-100 rounded-lg transition-all active:scale-95"
                               title={action.label}
                             >
-                              {Icon ? <Icon size={14} className="text-gray-600" /> : action.label}
+                              {Icon ? <Icon  className="text-gray-600 md:text-[14px] text-[10px] w-3 h-3 sm:w-4 sm:h-4"  /> : action.label}
                             </button>
                           );
                         })}
