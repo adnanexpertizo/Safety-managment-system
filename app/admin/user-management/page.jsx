@@ -148,7 +148,7 @@ export default function UserManagement() {
       <div className="flex items-end justify-between gap-2 sm:gap-4 flex-nowrap">
         <div className="min-w-0">
           <h1 className="text-md sm:text-lg lg:text-2xl flex gap-2 align-middle items-center mb-2 font-bold text-gray-900 truncate">
-            <Users className="w-7 h-7 sm:w-8 sm:h-8" /> User Management
+            User Management
           </h1>
 
           <p className="text-[12px] sm:text-sm lg:text-base text-gray-500 truncate">

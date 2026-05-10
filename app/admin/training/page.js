@@ -164,7 +164,7 @@ export default function AdminTrainings() {
 
           <Button
             onClick={() => openModal()}
-            className="w-full sm:w-auto px-6 py-3"
+            className=" sm:w-auto px-6 py-3"
           >
             + New Training
           </Button>

@@ -153,7 +153,7 @@ export default function AdminDashboard() {
         />
       </div>
       {/* Safety Performance Score - Full Width on Mobile, Right Side on Large */}
-      <div className="bg-white border border-gray-200 roundded-md md:rounded-xl md:p-4 p-2 flex flex-col justify-start items-start text-center shadow-sm">
+      <div className="bg-white border border-gray-200 rounded-md md:rounded-xl md:p-4 p-2 flex flex-col justify-start items-start text-center shadow-sm">
         <div className="flex w-full  justify-between">
           <div className="flex flex-col items-start">
             <p className="text-sm text-gray-500 font-medium">Safety Performance Score</p>
@@ -178,8 +178,8 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
         {/* Action Required */}
-        <div className="lg:col-span-3 bg-white border border-gray-200 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <div className="lg:col-span-3 bg-white border border-gray-200 rounded-2xl p-3 md:p-6">
+          <h2 className=" text-md md:text-lg font-semibold mb-4 flex items-center gap-2">
             🚨 Action Required
           </h2>
           <div className="space-y-4">

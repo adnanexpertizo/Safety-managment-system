@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 import { UserProvider } from '@/context/UserContext';
+// import PageTransition from '@/components/PageTransition';
 
 const geist = Geist({ subsets: ['latin'] });
 const geistMono = Geist_Mono({ subsets: ['latin'] });
@@ -44,7 +45,9 @@ export default function RootLayout({
       >
         <UserProvider>
           <ServiceWorkerRegister />
+          {/* <PageTransition> */}
           {children}
+          {/* </PageTransition> */}
         </UserProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

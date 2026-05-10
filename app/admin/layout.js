@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
+// import PageTransition from '@/components/PageTransition';
 import {
   LayoutDashboard,
   FileText,
@@ -132,7 +133,7 @@ export default function AdminLayout({ children }) {
 
             <div className="leading-tight">
               <p className="text-xs md:text-sm text-primary font-medium">
-                Health & Safety Management System
+                Health & Safety Record Management System
               </p>
             </div>
           </div>
