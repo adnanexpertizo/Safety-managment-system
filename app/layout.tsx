@@ -4,7 +4,7 @@ import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 import { UserProvider } from '@/context/UserContext';
-// import PageTransition from '@/components/PageTransition';
+import PageTransition from '@/components/PageTransition';
 
 const geist = Geist({ subsets: ['latin'] });
 const geistMono = Geist_Mono({ subsets: ['latin'] });

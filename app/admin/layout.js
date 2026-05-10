@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
-// import PageTransition from '@/components/PageTransition';
+import PageTransition from '@/components/PageTransition';
 import {
   LayoutDashboard,
   FileText,
@@ -45,12 +45,12 @@ export default function AdminLayout({ children }) {
 
   const menuItems = [
     { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+    { label: 'User Management', href: '/admin/user-management', icon: Users },
     { label: 'All Reports', href: '/admin/reports', icon: FileText },
     { label: 'Risk Assessments', href: '/admin/risk-assessments', icon: AlertTriangle },
-    { label: 'User Management', href: '/admin/user-management', icon: Users },
-    { label: 'Analysis', href: '/admin/analysis', icon: BarChart3 },
     { label: 'Performance', href: '/admin/performance', icon: TrendingUp },
     { label: 'Training', href: '/admin/training', icon: Award },
+    { label: 'Analysis', href: '/admin/analysis', icon: BarChart3 },
     { label: 'Map', href: '/admin/map', icon: Map },
   ];
 
@@ -133,7 +133,7 @@ export default function AdminLayout({ children }) {
 
             <div className="leading-tight">
               <p className="text-xs md:text-sm text-primary font-medium">
-                Health & Safety Record Management System
+                Health & Safety Record System
               </p>
             </div>
           </div>
@@ -154,7 +154,9 @@ export default function AdminLayout({ children }) {
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto">
           <div className="p-3 sm:p-4 lg:p-6">
+            <PageTransition>
             {children}
+            </PageTransition>
           </div>
         </main>
       </div>

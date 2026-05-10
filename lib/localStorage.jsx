@@ -1,4 +1,4 @@
-// ==================== STORAGE KEYS ====================
+
 const STORAGE_KEYS = {
   REPORTS: 'safety_reports',
   RISK_ASSESSMENTS: 'safety_risk_assessments',
@@ -38,19 +38,6 @@ const STATIC_TRAININGS = [
     score: null,
     createdAt: "2026-04-25T14:30:00.000Z",
   },
-  {
-    id: 'tr3',
-    title: "Hazard Identification & Risk Assessment",
-    department: "HSE",
-    trainer: "Muhammad Danish",
-    trainerId: "emp3",
-    date: "2026-05-10",
-    duration: "3 hours",
-    participants: 25,
-    status: "Completed",
-    score: 92,
-    createdAt: "2026-04-15T09:00:00.000Z",
-  },
 ];
   const STATIC_EMPLOYEES = [
     {
@@ -82,28 +69,7 @@ const STATIC_TRAININGS = [
       designation: 'Supervisor',
       status: 'Active',
       createdAt: '2026-01-01T00:00:00.000Z'
-    },
-    {
-      id: 'emp4',
-      name: 'Abdullah Naseer',
-      email: 'abdullah@safety.com',
-      role: 'TECHNICIAN',
-      department: 'Maintenance',
-      designation: 'Technician',
-      status: 'Active',
-      createdAt: '2026-01-01T00:00:00.000Z'
-    },
-    {
-      id: 'emp5',
-      name: 'Izhaan Saqib',
-      email: 'izhaan@safety.com',
-      role: 'COORDINATOR',
-      department: 'HSE',
-      designation: 'Safety Coordinator',
-      status: 'Active',
-      createdAt: '2026-01-01T00:00:00.000Z'
     }
-
   ];
 
   const STATIC_REPORTS = [
@@ -141,23 +107,6 @@ const STATIC_TRAININGS = [
       assignedDesignation: 'Safety Officer',
       createdAt: '2026-04-28T14:15:00.000Z',
     },
-    {
-      id: 'static-r3',
-      type: 'hazard',
-      severity: 'medium',
-      potentialSeverity: 'medium',
-      dateOfIncident: '2026-05-01T08:00',
-      location: 'Electrical Room',
-      description: 'Exposed wiring near control panel.',
-      witnesses: '',
-      immediateActions: 'Tagged out of service.',
-      recommendedActions: 'Schedule urgent repair with electrician.',
-      status: 'open',
-      assignedTo: 'emp3',
-      assignedName: 'Muhammad Danish',
-      assignedDesignation: 'Supervisor',
-      createdAt: '2026-05-01T08:00:00.000Z',
-    },
   ];
 
   const STATIC_RISK_ASSESSMENTS = [
@@ -190,21 +139,6 @@ const STATIC_TRAININGS = [
       assignedName: "John Smith",
       reviewDate: "2026-04-20",
       createdAt: "2026-04-05T08:30:00.000Z",
-    },
-    {
-      id: 'ra3',
-      activity: "Scaffolding erection",
-      hazard: "Fall from height",
-      hazardCategory: "Physical",
-      location: "Site B - Building 3",
-      likelihood: 5,
-      severity: 5,
-      riskScore: 25,
-      riskLevel: "High",
-      status: "open",
-      assignedName: "Muhammad Danish",
-      reviewDate: "2026-05-10",
-      createdAt: "2026-04-28T14:00:00.000Z",
     },
   ];
 

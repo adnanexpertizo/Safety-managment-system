@@ -58,7 +58,7 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-[3px] md:gap-2">
+        <div className=" flex-wrap gap-[3px] md:gap-2 hidden md:flex" >
 
           <Link href="/admin/reports/new" className="pointer-events-none">
             <Button
