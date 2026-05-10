@@ -157,14 +157,14 @@ export default function AdminTrainings() {
               Training & Compliance
             </h1>
 
-            <p className="text-[12px] sm:text-sm lg:text-base text-gray-500 truncate">
+            <p className="text-[10px] sm:text-sm lg:text-base text-gray-500 truncate">
               Employee Safety Training Management
             </p>
           </div>
 
           <Button
             onClick={() => openModal()}
-            className=" sm:w-auto px-6 py-3"
+            className="px-2 sm:px-6 py-2 text-[10px] sm:text-sm lg:text-base"
           >
             + New Training
           </Button>

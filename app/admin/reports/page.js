@@ -217,9 +217,9 @@ export default function AdminReports() {
 
           <Button
             onClick={() => openModal()}
-            className=" sm:w-auto px-6 py-3 text-base"
+            className="px-2 sm:px-6 py-2 text-[10px] sm:text-sm lg:text-base"
           >
-            + New Report
+            + Add New Report
           </Button>
         </div>
 

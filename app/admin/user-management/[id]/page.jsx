@@ -32,7 +32,7 @@ export default function UserDetail() {
     return (
       <div className="flex items-center justify-center min-h-[70vh] px-4">
         <div className="text-center">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="mt-3 text-sm sm:text-base text-gray-500">
             Loading profile...
           </p>

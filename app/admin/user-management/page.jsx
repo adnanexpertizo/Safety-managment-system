@@ -150,15 +150,14 @@ export default function UserManagement() {
           <h1 className="text-md sm:text-lg lg:text-2xl flex gap-2 align-middle items-center mb-2 font-bold text-gray-900 truncate">
             User Management
           </h1>
-
-          <p className="text-[12px] sm:text-sm lg:text-base text-gray-500 truncate">
+          <p className="text-[10px] sm:text-sm lg:text-base text-gray-500 truncate">
             Manage employees, roles, and access
           </p>
         </div>
 
         <Button
           onClick={() => openModal()}
-          className="flex items-center gap-2 sm:w-auto"
+          className="px-2 sm:px-6 py-2 text-[10px] sm:text-sm lg:text-base"
         >
           <Plus size={18} /> Add New User
         </Button>
