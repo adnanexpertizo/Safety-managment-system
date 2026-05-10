@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -14,7 +15,6 @@ import {
   Map,
   LogOut,
   Menu,
-  X
 } from 'lucide-react';
 
 export default function AdminLayout({ children }) {
@@ -53,7 +53,13 @@ export default function AdminLayout({ children }) {
     { label: 'Map', href: '/admin/map', icon: Map },
   ];
 
-  const isActive = (href) => pathname === href || pathname.startsWith(href + '/');
+  // Improved Active Logic
+  const isActive = (href) => {
+    if (href === '/admin') {
+      return pathname === '/admin';           // Only exact match for Dashboard
+    }
+    return pathname === href || pathname.startsWith(href + '/');
+  };
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -68,7 +74,6 @@ export default function AdminLayout({ children }) {
       <aside className={`fixed lg:static inset-y-0 left-0 z-50 md:w-64 w-52 bg-primary text-white flex flex-col shadow-xl
         transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
 
-
         <div className="px-4 py-6 md:py-4 border-b border-white/10">
           <div className="flex items-center gap-2">
             <span className="text-2xl">🛡️</span>
@@ -76,32 +81,31 @@ export default function AdminLayout({ children }) {
               <p className="font-semibold text-base leading-none">MS Safety</p>
               <p className="text-[10px] text-gray-300">HSE System</p>
             </div>
-
           </div>
         </div>
 
-
         <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setSidebarOpen(false)}
-              className={`group flex items-center gap-2.5 px-3 md:my-2 py-3  rounded-xl  text-sm font-medium transition-all
-                ${isActive(item.href)
-                  ? 'bg-white/20 text-white'
-                  : 'text-gray-300 hover:bg-white/10 hover:text-white'
-                }`}
-            >
-              <item.icon className={` w-4  h-4 flex-shrink-0 ${isActive(item.href) ? 'text-white' : 'text-gray-400'}`} />
-              <span className="text-[13px]">{item.label}</span>
-            </Link>
-          ))}
+          {menuItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setSidebarOpen(false)}
+                className={`group flex items-center gap-2.5 px-3 md:my-2 py-3 rounded-xl text-sm font-medium transition-all
+                  ${active
+                    ? 'bg-white/20 text-white'
+                    : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                  }`}
+              >
+                <item.icon className={`w-4 h-4 flex-shrink-0 ${active ? 'text-white' : 'text-gray-400'}`} />
+                <span className="text-[13px]">{item.label}</span>
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="p-3 border-t border-white/10">
-
-
           <button
             onClick={() => { logout(); router.push('/'); }}
             className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl 
@@ -117,53 +121,38 @@ export default function AdminLayout({ children }) {
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* Mobile Top Bar */}
-        <header className="bg-white border-b  p-5 sm:p-4 lg:p-3 flex items-center justify-between shadow-sm">
-
-          {/* Left Section */}
+        <header className="bg-white border-b p-4 lg:p-3 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-
-            {/* Mobile Menu */}
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden rounded-lg hover:bg-gray-100 transition"
+              className="lg:hidden rounded-lg hover:bg-gray-100 transition p-1"
             >
               <Menu size={22} />
             </button>
 
-            {/* Brand */}
             <div className="leading-tight">
-
-              <p className="md:text-md text-xs text-primary">
+              <p className="text-xs md:text-sm text-primary font-medium">
                 Health & Safety Management System
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-3  rounded-xl hover:bg-gray-50 transition" title={`${user.name} (${user.email})`}>
-
-              <div
-                className="md:w-8 md:h-8 w-6 h-6  rounded-full bg-blue-600 
-                   flex items-center justify-center 
-                   text-white font-semibold shadow-sm"
-              >
+            <div className="flex items-center gap-3 rounded-xl hover:bg-gray-50 transition p-1" title={`${user.name} (${user.email})`}>
+              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold shadow-sm">
                 {user?.name?.charAt(0)?.toUpperCase()}
               </div>
               <div className="hidden sm:block leading-tight">
-                <p className="text-[10px] font-semibold text-gray-800">
-                  {user.name}
-                </p>
-                <p className="text-[10px] text-gray-500">
-                  {user.email}
-                </p>
+                <p className="text-sm font-semibold text-gray-800">{user.name}</p>
+                <p className="text-xs text-gray-500">{user.email}</p>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Page Content - Reduced Padding on Mobile */}
+        {/* Page Content */}
         <main className="flex-1 overflow-y-auto">
-          <div className=" p-3 sm:p-4 lg:p-5">
+          <div className="p-3 sm:p-4 lg:p-6">
             {children}
           </div>
         </main>
