@@ -58,7 +58,7 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-[3px] md:gap-2">
 
           <Link href="/admin/reports/new" className="pointer-events-none">
             <Button
@@ -202,9 +202,9 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Activity */}
-        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-6">
+        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-3 md:p-6">
           <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
-          <div className="space-y-4 text-sm">
+          <div className="space-y-4 text-sm grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
             {recentActivity.length > 0 ? (
               recentActivity.map((item, i) => (
                 <div key={i} className="flex gap-3">
@@ -225,8 +225,8 @@ export default function AdminDashboard() {
       </div>
 
       {/* Recent Reports */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
-        <div className="flex justify-between items-center mb-5">
+      <div className="bg-white border border-gray-200 rounded-2xl p-0 ">
+        <div className="flex justify-between items-center mb-5 p-2">
           <h2 className="text-lg font-semibold">Recent Reports</h2>
           <Link href="/admin/reports">
             <Button variant="outline" size="sm">View All</Button>

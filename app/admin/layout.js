@@ -121,7 +121,7 @@ export default function AdminLayout({ children }) {
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* Mobile Top Bar */}
-        <header className="bg-white border-b p-4 lg:p-3 flex items-center justify-between shadow-sm">
+        <header className="bg-white border-b p-4 md:p-2 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
