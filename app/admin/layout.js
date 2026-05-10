@@ -87,7 +87,7 @@ export default function AdminLayout({ children }) {
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`group flex items-center gap-2.5 px-3 md:my-3 py-4 rounded-xl text-sm font-medium transition-all
+              className={`group flex items-center gap-2.5 px-3 md:my-2 py-3  rounded-xl  text-sm font-medium transition-all
                 ${isActive(item.href)
                   ? 'bg-white/20 text-white'
                   : 'text-gray-300 hover:bg-white/10 hover:text-white'
@@ -117,7 +117,7 @@ export default function AdminLayout({ children }) {
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* Mobile Top Bar */}
-        <header className="bg-white border-b  p-3 sm:p-4 lg:p-5 flex items-center justify-between shadow-sm">
+        <header className="bg-white border-b  p-5 sm:p-4 lg:p-3 flex items-center justify-between shadow-sm">
 
           {/* Left Section */}
           <div className="flex items-center gap-3">

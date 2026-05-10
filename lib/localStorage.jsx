@@ -1,4 +1,4 @@
-// Add this to STORAGE_KEYS
+// ==================== STORAGE KEYS ====================
 const STORAGE_KEYS = {
   REPORTS: 'safety_reports',
   RISK_ASSESSMENTS: 'safety_risk_assessments',
@@ -257,90 +257,147 @@ export const getDashboardStats = () => {
     totalRiskAssessments: riskAssessments.length,
     highRiskAssessments,
     totalTrainings: trainings.length,
+    activeUsers: getLocalUsers()?.length,
+    safetyScore: 87, // Can be made dynamic later
   };
 };
 
 export const getRecentReports = (limit = 5) => {
   const reports = getLocalReports();
   return [...reports]
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .sort((a, b) => new Date(b.createdAt || b.dateOfIncident) - new Date(a.createdAt || a.dateOfIncident))
+    .slice(0, limit);
+};
+
+/** ✅ NEW - Recent Activity for Dashboard */
+export const getRecentActivity = (limit = 6) => {
+  initLocalData();
+
+  const reports = getLocalReports();
+  const risks = getLocalRiskAssessments();
+  const trainings = getLocalTrainings();
+
+  let activities = [];
+
+  // Reports
+  reports.forEach(r => {
+    activities.push({
+      id: r.id,
+      type: 'report',
+      title: r.description?.substring(0, 70) + '...' || 'New Report Submitted',
+      subtitle: `${(r.type || '').toUpperCase()} • ${r.location || 'N/A'}`,
+      time: r.createdAt || r.dateOfIncident,
+      icon: '📋',
+      color: r.type === 'incident' ? 'text-red-600' : r.type === 'near_miss' ? 'text-amber-600' : 'text-orange-600'
+    });
+  });
+
+  // Risk Assessments
+  risks.forEach(ra => {
+    activities.push({
+      id: ra.id,
+      type: 'risk',
+      title: ra.activity || 'Risk Assessment',
+      subtitle: `${ra.riskLevel} Risk • ${ra.location || ''}`,
+      time: ra.createdAt || ra.reviewDate,
+      icon: '⚠️',
+      color: (ra.riskLevel || '').toLowerCase() === 'high' ? 'text-red-600' : 'text-amber-600'
+    });
+  });
+
+  // Trainings
+  trainings.forEach(t => {
+    activities.push({
+      id: t.id,
+      type: 'training',
+      title: t.title,
+      subtitle: `${t.status} • ${t.department || ''}`,
+      time: t.createdAt || t.date,
+      icon: '🎓',
+      color: t.status === 'Completed' ? 'text-emerald-600' : 'text-blue-600'
+    });
+  });
+
+  // Sort by newest first
+  return activities
+    .sort((a, b) => new Date(b.time) - new Date(a.time))
     .slice(0, limit);
 };
 
   // ==================== REPORTS ====================
 
-  export const getLocalReports = () => {
-    initLocalData();
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.REPORTS)) || [];
-  };
+export const getLocalReports = () => {
+  initLocalData();
+  return JSON.parse(localStorage.getItem(STORAGE_KEYS.REPORTS)) || [];
+};
 
-  export const addLocalReport = (report) => {
-    const reports = getLocalReports();
+export const addLocalReport = (report) => {
+  const reports = getLocalReports();
     const newReport = { ...report, id: 'report_' + Date.now(), createdAt: new Date().toISOString() };
-    reports.unshift(newReport);
+  reports.unshift(newReport);
+  localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(reports));
+  return newReport;
+};
+
+export const updateLocalReport = (id, data) => {
+  const reports = getLocalReports();
+  const index = reports.findIndex(r => r.id === id);
+
+  if (index !== -1) {
+    reports[index] = { ...reports[index], ...data, updatedAt: new Date().toISOString() };
     localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(reports));
-    return newReport;
-  };
+  }
+};
 
-  export const updateLocalReport = (id, data) => {
-    const reports = getLocalReports();
-    const index = reports.findIndex(r => r.id === id);
-
-    if (index !== -1) {
-      reports[index] = { ...reports[index], ...data, updatedAt: new Date().toISOString() };
-      localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(reports));
-    }
-  };
-
-  export const deleteLocalReport = (id) => {
-    const reports = getLocalReports().filter(r => r.id !== id);
-    localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(reports));
-  };
+export const deleteLocalReport = (id) => {
+  const reports = getLocalReports().filter(r => r.id !== id);
+  localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(reports));
+};
 
   // ==================== RISK ASSESSMENTS ====================
 
-  export const getLocalRiskAssessments = () => {
-    initLocalData();
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.RISK_ASSESSMENTS)) || [];
+export const getLocalRiskAssessments = () => {
+  initLocalData();
+  return JSON.parse(localStorage.getItem(STORAGE_KEYS.RISK_ASSESSMENTS)) || [];
+};
+
+export const addLocalRiskAssessment = (assessment) => {
+  const assessments = getLocalRiskAssessments();
+
+  const newAssessment = {
+    ...assessment,
+    id: 'ra_' + Date.now(),
+    createdAt: new Date().toISOString(),
   };
 
-  export const addLocalRiskAssessment = (assessment) => {
-    const assessments = getLocalRiskAssessments();
+  assessments.unshift(newAssessment);
 
-    const newAssessment = {
-      ...assessment,
-      id: 'ra_' + Date.now(),
-      createdAt: new Date().toISOString(),
-    };
+  localStorage.setItem(STORAGE_KEYS.RISK_ASSESSMENTS, JSON.stringify(assessments));
 
-    assessments.unshift(newAssessment);
+  return newAssessment;
+};
 
+export const updateLocalRiskAssessment = (id, data) => {
+  const assessments = getLocalRiskAssessments();
+  const index = assessments.findIndex(r => r.id === id);
+
+  if (index !== -1) {
+    assessments[index] = { ...assessments[index], ...data, updatedAt: new Date().toISOString() };
     localStorage.setItem(STORAGE_KEYS.RISK_ASSESSMENTS, JSON.stringify(assessments));
+  }
+};
 
-    return newAssessment;
-  };
-
-  export const updateLocalRiskAssessment = (id, data) => {
-    const assessments = getLocalRiskAssessments();
-    const index = assessments.findIndex(r => r.id === id);
-
-    if (index !== -1) {
-      assessments[index] = { ...assessments[index], ...data, updatedAt: new Date().toISOString() };
-      localStorage.setItem(STORAGE_KEYS.RISK_ASSESSMENTS, JSON.stringify(assessments));
-    }
-  };
-
-  export const deleteLocalRiskAssessment = (id) => {
-    const assessments = getLocalRiskAssessments().filter(r => r.id !== id);
-    localStorage.setItem(STORAGE_KEYS.RISK_ASSESSMENTS, JSON.stringify(assessments));
-  };
+export const deleteLocalRiskAssessment = (id) => {
+  const assessments = getLocalRiskAssessments().filter(r => r.id !== id);
+  localStorage.setItem(STORAGE_KEYS.RISK_ASSESSMENTS, JSON.stringify(assessments));
+};
 
   // ==================== EMPLOYEES ====================
 
-  export const getLocalUsers = () => {
-    initLocalData();
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.EMPLOYEES)) || STATIC_EMPLOYEES;
-  };
+export const getLocalUsers = () => {
+  initLocalData();
+  return JSON.parse(localStorage.getItem(STORAGE_KEYS.EMPLOYEES)) || STATIC_EMPLOYEES;
+};
 
   export const addLocalUser = (user) => {
     const users = getLocalUsers();
