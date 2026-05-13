@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser } from '@/context/UserContext';
+import { Search, X } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 
 export default function FilterBar({
@@ -13,159 +13,168 @@ export default function FilterBar({
   showDesignation = false,
   showMonth = false,
   showSearch = true,
+  showStatus = true,
   departments = [],
   designations = [],
   months = [],
+  employees = [],
   customStatusOptions = null,
 }) {
-  const { user } = useUser();
-  const isAdmin = user?.role === 'ADMIN';
+  const update = (key, val) => onFilterChange({ ...filters, [key]: val });
 
-  // Report Type Options
+  const hasActiveFilters = Object.values(filters).some(v => v && v !== 'All' && v !== 'all');
+
+  const clearAll = () => {
+    const cleared = {};
+    Object.keys(filters).forEach(k => (cleared[k] = ''));
+    onFilterChange(cleared);
+  };
+
   const reportTypeOptions = [
     { value: '', label: 'All Types' },
-    { value: 'incident', label: 'Incidents' },
-    { value: 'near_miss', label: 'Near Misses' },
-    { value: 'hazard', label: 'Hazards' },
+    { value: 'incident', label: 'Incident' },
+    { value: 'near_miss', label: 'Near Miss' },
+    { value: 'hazard', label: 'Hazard' },
   ];
 
-  // Category Options
   const categoryOptions = [
     { value: '', label: 'All Categories' },
     { value: 'Physical', label: 'Physical' },
     { value: 'Chemical', label: 'Chemical' },
     { value: 'Electrical', label: 'Electrical' },
     { value: 'Fire', label: 'Fire' },
+    { value: 'Biological', label: 'Biological' },
+    { value: 'Ergonomic', label: 'Ergonomic' },
   ];
 
-  // Status Options
   const defaultStatusOptions = [
     { value: '', label: 'All Statuses' },
     { value: 'open', label: 'Open' },
     { value: 'in-progress', label: 'In Progress' },
+    { value: 'resolved', label: 'Resolved' },
     { value: 'closed', label: 'Closed' },
   ];
 
   const statusOptions = customStatusOptions || defaultStatusOptions;
 
-  // Employee Options
   const employeeOptions = [
     { value: '', label: 'All Employees' },
-    { value: 'my', label: 'My Reports' },
-    ...getLocalUsers()?.map((emp) => ({
-      value: emp.id,
-      label: emp.name,
-    })),
+    ...employees.map(emp => ({ value: emp.id, label: emp.name })),
   ];
 
-  // Month Options
-  const monthOptions = months.map(m => ({
-    value: m === 'All Months' ? 'all' : m,
-    label: m,
-  }));
+  const monthOptions = [
+    { value: 'all', label: 'All Months' },
+    ...months.filter(m => m !== 'All Months').map(m => ({ value: m, label: m })),
+  ];
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-2 sm:p-4 mb-3 sm:mb-6 shadow-sm">
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-2 sm:gap-4">
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-3 sm:p-4">
+      <div className="flex flex-wrap gap-2 sm:gap-3">
 
-        {/* Report Type */}
-        {showReportType && (
-          <div className="w-full">
-            <CustomSelect
-              label="Report Type"
-              value={filters.type || ''}
-              onChange={(value) => onFilterChange({ ...filters, type: value || '' })}
-              options={reportTypeOptions}
-            />
-          </div>
-        )}
-
-        {/* Category */}
-        {showCategory && (
-          <div className="w-full">
-            <CustomSelect
-              label="Category"
-              value={filters.category || ''}
-              onChange={(value) => onFilterChange({ ...filters, category: value || '' })}
-              options={categoryOptions}
-            />
-          </div>
-        )}
-
-        {/* Status */}
-        <div className="w-full">
-          <CustomSelect
-            label="Status"
-            value={filters.status || ''}
-            onChange={(value) => onFilterChange({ ...filters, status: value || '' })}
-            options={statusOptions}
-          />
-        </div>
-
-        {/* Employee */}
-        {showEmployee && isAdmin && (
-          <div className="w-full">
-            <CustomSelect label="Employee" value={filters.assignedTo || ''} onChange={(v) => onFilterChange({ ...filters, assignedTo: v || '' })} options={employeeOptions} />
-          </div>
-        )}
-
-        {/* Department */}
-        {showDepartment && departments.length > 0 && (
-          <div className="w-full">
-            <CustomSelect
-              label="Department"
-              value={filters.department || 'All'}
-              onChange={(v) => onFilterChange({ ...filters, department: v })}
-              options={departments.map(dep => ({ value: dep, label: dep }))}
-            />
-          </div>
-        )}
-
-        {/* Designation */}
-        {showDesignation && designations.length > 0 && (
-          <div className="w-full">
-            <CustomSelect
-              label="Designation"
-              value={filters.designation || 'All'}
-              onChange={(v) => onFilterChange({ ...filters, designation: v })}
-              options={designations.map(des => ({ value: des, label: des }))}
-            />
-          </div>
-        )}
-
-        {/* Month */}
-        {showMonth && monthOptions.length > 0 && (
-          <div className="w-full">
-            <CustomSelect label="Month" value={filters.month || 'all'} onChange={(v) => onFilterChange({ ...filters, month: v })} options={monthOptions} />
-          </div>
-        )}
-
-        {/* Search */}
         {showSearch && (
-          <div className="w-full sm:col-span-2 xl:col-span-1">
-            <label className="block text-[11px] sm:text-sm font-medium text-gray-700 mb-1">
-              Search
-            </label>
+          <div className="relative flex-1 min-w-[160px]">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             <input
               type="text"
               placeholder="Search..."
               value={filters.search || ''}
-              onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
-              className="w-full px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-md sm:rounded-lg focus:border-blue-600 focus:ring-0 focus:outline-none"
+              onChange={(e) => update('search', e.target.value)}
+              className="w-full pl-8 pr-3 py-2.5 sm:py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-xl focus:border-slate-500 focus:ring-2 focus:ring-slate-100 focus:outline-none transition"
+            />
+            {filters.search && (
+              <button onClick={() => update('search', '')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <X size={13} />
+              </button>
+            )}
+          </div>
+        )}
+
+        {showStatus && (
+          <div className="min-w-[140px] sm:min-w-[160px]">
+            <CustomSelect
+              value={filters.status || ''}
+              onChange={(v) => update('status', v)}
+              options={statusOptions}
+              placeholder="All Statuses"
             />
           </div>
+        )}
+
+        {showReportType && (
+          <div className="min-w-[140px] sm:min-w-[150px]">
+            <CustomSelect
+              value={filters.type || ''}
+              onChange={(v) => update('type', v)}
+              options={reportTypeOptions}
+              placeholder="All Types"
+            />
+          </div>
+        )}
+
+        {showCategory && (
+          <div className="min-w-[140px] sm:min-w-[160px]">
+            <CustomSelect
+              value={filters.category || ''}
+              onChange={(v) => update('category', v)}
+              options={categoryOptions}
+              placeholder="All Categories"
+            />
+          </div>
+        )}
+
+        {showEmployee && employees.length > 0 && (
+          <div className="min-w-[150px] sm:min-w-[180px]">
+            <CustomSelect
+              value={filters.assignedTo || ''}
+              onChange={(v) => update('assignedTo', v)}
+              options={employeeOptions}
+              placeholder="All Employees"
+            />
+          </div>
+        )}
+
+        {showDepartment && departments.length > 0 && (
+          <div className="min-w-[140px] sm:min-w-[160px]">
+            <CustomSelect
+              value={filters.department || 'All'}
+              onChange={(v) => update('department', v)}
+              options={departments.map(d => ({ value: d, label: d }))}
+              placeholder="All Departments"
+            />
+          </div>
+        )}
+
+        {showDesignation && designations.length > 0 && (
+          <div className="min-w-[140px] sm:min-w-[160px]">
+            <CustomSelect
+              value={filters.designation || 'All'}
+              onChange={(v) => update('designation', v)}
+              options={designations.map(d => ({ value: d, label: d }))}
+              placeholder="All Designations"
+            />
+          </div>
+        )}
+
+        {showMonth && monthOptions.length > 1 && (
+          <div className="min-w-[130px] sm:min-w-[150px]">
+            <CustomSelect
+              value={filters.month || 'all'}
+              onChange={(v) => update('month', v)}
+              options={monthOptions}
+              placeholder="All Months"
+            />
+          </div>
+        )}
+
+        {hasActiveFilters && (
+          <button
+            onClick={clearAll}
+            className="flex items-center gap-1.5 px-3 py-2.5 text-xs text-gray-500 hover:text-red-600 hover:bg-red-50 border border-dashed border-gray-300 hover:border-red-300 rounded-xl transition-all whitespace-nowrap"
+          >
+            <X size={12} /> Clear all
+          </button>
         )}
       </div>
     </div>
   );
-}
-
-// Helper Function
-function getLocalUsers() {
-  if (typeof window === 'undefined') return [];
-  try {
-    return JSON.parse(localStorage.getItem('safety_users')) || [];
-  } catch {
-    return [];
-  }
 }
