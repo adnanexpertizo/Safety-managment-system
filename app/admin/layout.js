@@ -17,6 +17,8 @@ const menuItems = [
   { label: 'Risk Assessments', href: '/admin/risk-assessments', icon: AlertTriangle },
   { label: 'Performance', href: '/admin/performance', icon: TrendingUp },
   { label: 'Training', href: '/admin/training', icon: Award },
+  { label: 'Corrective Actions', href: '/admin/corrective-actions', icon: Award },
+  { label: 'Permits', href: '/admin/permit', icon: Award },
   { label: 'Analysis', href: '/admin/analysis', icon: BarChart3 },
   { label: 'Map', href: '/admin/map', icon: Map },
 ];
@@ -173,6 +175,7 @@ export default function AdminLayout({ children }) {
 
         {/* Content */}
         <main className="flex-1 overflow-y-auto">
+          {/* this padding is apply on modal as well and modal shows in side teh content with these padding, that should not be apply on modal, modal is insdie the apges content the paddign is here is okay but modal should not be affected by this  */}
           <div className="p-4 sm:p-5 lg:p-6">
             <PageTransition>
               {children}

@@ -79,7 +79,7 @@ export default function FilterBar({
               placeholder="Search..."
               value={filters.search || ''}
               onChange={(e) => update('search', e.target.value)}
-              className="w-full pl-8 pr-3 py-2.5 sm:py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-xl focus:border-slate-500 focus:ring-2 focus:ring-slate-100 focus:outline-none transition"
+              className="min-w-[140px] sm:min-w-[160px] pl-8 pr-3 py-2.5 sm:py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-xl focus:border-slate-500 focus:ring-2 focus:ring-slate-100 focus:outline-none transition"
             />
             {filters.search && (
               <button onClick={() => update('search', '')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">

@@ -1,11 +1,12 @@
 // ==================== STORAGE KEYS ====================
-
 const STORAGE_KEYS = {
   REPORTS: 'safety_reports',
   RISK_ASSESSMENTS: 'safety_risk_assessments',
   TRAININGS: 'safety_trainings',
   EMPLOYEES: 'safety_users',
   CORRECTIVE_ACTIONS: 'safety_corrective_actions',
+  PERMITS: 'safety_permits',
+  INSPECTIONS: 'safety_inspections',
 };
 
 export const PERFORMANCE_SCORING = {
@@ -233,8 +234,21 @@ const STATIC_CORRECTIVE_ACTIONS = [
     createdAt: '2026-04-28T15:00:00.000Z',
   },
 ];
+const STATIC_PERMITS = [
+  { id: 'ptw1', permitNumber: 'PTW-2026-001', type: 'Hot Work', title: 'Welding on Rooftop Structure', location: 'Rooftop - Block A', issuer: 'Adnan Rafiq', issuerId: 'emp2', assignedTo: 'emp1', assignedName: 'John Smith', startDate: '2026-05-10', endDate: '2026-05-10', startTime: '08:00', endTime: '17:00', status: 'active', hazards: 'Fire, Burns, Fumes', precautions: 'Fire extinguisher on site, PPE required, area barricaded', status_history: [{ status: 'active', date: '2026-05-10T07:00:00.000Z', note: 'Permit issued' }], createdAt: '2026-05-09T15:00:00.000Z' },
+  { id: 'ptw2', permitNumber: 'PTW-2026-002', type: 'Confined Space', title: 'Inspection of Underground Tank', location: 'Utility Area - Tank B', issuer: 'Adnan Rafiq', issuerId: 'emp2', assignedTo: 'emp3', assignedName: 'Muhammad Danish', startDate: '2026-05-12', endDate: '2026-05-12', startTime: '09:00', endTime: '13:00', status: 'completed', hazards: 'Oxygen deficiency, Toxic gases', precautions: 'Gas monitor, rescue team on standby, buddy system', status_history: [{ status: 'active', date: '2026-05-12T08:30:00.000Z', note: 'Permit issued' }, { status: 'completed', date: '2026-05-12T13:15:00.000Z', note: 'Work completed safely' }], createdAt: '2026-05-11T10:00:00.000Z' },
+  { id: 'ptw3', permitNumber: 'PTW-2026-003', type: 'Electrical Isolation', title: 'Panel Maintenance - Main Distribution Board', location: 'Substation Area', issuer: 'Adnan Rafiq', issuerId: 'emp2', assignedTo: 'emp1', assignedName: 'John Smith', startDate: '2026-05-18', endDate: '2026-05-18', startTime: '07:00', endTime: '12:00', status: 'pending', hazards: 'Electric shock, Arc flash', precautions: 'LOTO procedure, PPE Cat 4, Isolation certificate', status_history: [{ status: 'pending', date: '2026-05-15T14:00:00.000Z', note: 'Permit awaiting approval' }], createdAt: '2026-05-15T14:00:00.000Z' },
+];
 
-// ==================== INIT ====================
+const STATIC_INSPECTIONS = [
+  { id: 'ins1', title: 'Monthly Fire Safety Inspection', type: 'Fire Safety', location: 'Building A - All Floors', inspector: 'John Smith', inspectorId: 'emp1', scheduledDate: '2026-05-01', completedDate: '2026-05-01', status: 'completed', score: 85, totalItems: 20, passedItems: 17, failedItems: 3, findings: 'Exit sign on 2nd floor not illuminated. Fire door on 3rd floor blocked. Extinguisher P3 expired.', recommendations: 'Replace exit sign, clear fire door, replace extinguisher P3', createdAt: '2026-04-28T10:00:00.000Z' },
+  { id: 'ins2', title: 'PPE & Equipment Audit', type: 'Equipment Audit', location: 'Warehouse & Production', inspector: 'Adnan Rafiq', inspectorId: 'emp2', scheduledDate: '2026-05-08', completedDate: '2026-05-08', status: 'completed', score: 92, totalItems: 25, passedItems: 23, failedItems: 2, findings: 'Two hard hats past expiry date. Safety harness tag missing on one unit.', recommendations: 'Replace expired hard hats, retag or replace safety harness', createdAt: '2026-05-06T09:00:00.000Z' },
+  { id: 'ins3', title: 'Workplace Safety Walkthrough', type: 'General Safety', location: 'Production Floor & Yard', inspector: 'Muhammad Danish', inspectorId: 'emp3', scheduledDate: '2026-05-20', completedDate: null, status: 'scheduled', score: null, totalItems: 30, passedItems: 0, failedItems: 0, findings: '', recommendations: '', createdAt: '2026-05-14T11:00:00.000Z' },
+];
+
+
+
+
 
 export const initLocalData = () => {
   if (typeof window === 'undefined') return;
@@ -254,17 +268,19 @@ export const initLocalData = () => {
   if (!localStorage.getItem(STORAGE_KEYS.CORRECTIVE_ACTIONS)) {
     localStorage.setItem(STORAGE_KEYS.CORRECTIVE_ACTIONS, JSON.stringify(STATIC_CORRECTIVE_ACTIONS));
   }
+  if (!localStorage.getItem(STORAGE_KEYS.PERMITS)) localStorage.setItem(STORAGE_KEYS.PERMITS, JSON.stringify(STATIC_PERMITS));
+  if (!localStorage.getItem(STORAGE_KEYS.INSPECTIONS)) localStorage.setItem(STORAGE_KEYS.INSPECTIONS, JSON.stringify(STATIC_INSPECTIONS));
 };
 
 // ==================== DASHBOARD HELPERS ====================
-
 export const getDashboardStats = () => {
   initLocalData();
-
   const reports = JSON.parse(localStorage.getItem(STORAGE_KEYS.REPORTS)) || [];
   const riskAssessments = JSON.parse(localStorage.getItem(STORAGE_KEYS.RISK_ASSESSMENTS)) || [];
   const trainings = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRAININGS)) || [];
   const correctiveActions = JSON.parse(localStorage.getItem(STORAGE_KEYS.CORRECTIVE_ACTIONS)) || [];
+  const permits = JSON.parse(localStorage.getItem(STORAGE_KEYS.PERMITS)) || [];
+  const inspections = JSON.parse(localStorage.getItem(STORAGE_KEYS.INSPECTIONS)) || [];
 
   const openReports = reports.filter(r => (r.status || '').toLowerCase() === 'open').length;
   const highRiskAssessments = riskAssessments.filter(
@@ -277,7 +293,8 @@ export const getDashboardStats = () => {
     return ca.dueDate && new Date(ca.dueDate) < new Date();
   }).length;
 
-  // Days since last incident
+  const activePermits = permits.filter(p => p.status === 'active').length;
+
   const incidents = reports
     .filter(r => r.type === 'incident')
     .map(r => new Date(r.dateOfIncident || r.createdAt))
@@ -303,6 +320,9 @@ export const getDashboardStats = () => {
     daysSinceLastIncident,
     overdueCorrectiveActions: overdueActions,
     openCorrectiveActions: correctiveActions.filter(ca => ca.status === 'open').length,
+    activePermits,
+    totalInspections: inspections.length,
+    completedInspections: inspections.filter(i => i.status === 'completed').length,
   };
 };
 
@@ -370,7 +390,7 @@ export const getRecentReports = (limit = 5) => {
     .slice(0, limit);
 };
 
-export const getRecentActivity = (limit = 6) => {
+export const getRecentActivity = (limit = 8) => {
   initLocalData();
   const reports = getLocalReports();
   const risks = getLocalRiskAssessments();
@@ -379,15 +399,14 @@ export const getRecentActivity = (limit = 6) => {
 
   let activities = [];
 
-  reports.forEach(r => {
+  getLocalReports().forEach(r => {
     activities.push({
       id: r.id,
       type: 'report',
-      title: r.description?.substring(0, 60) + '...' || 'New Report Submitted',
+      title: r.description?.substring(0, 55) + '…' || 'Report Submitted',
       subtitle: `${(r.type || '').replace('_', ' ').toUpperCase()} • ${r.location || 'N/A'}`,
       time: r.createdAt || r.dateOfIncident,
       icon: '📋',
-      color: r.type === 'incident' ? 'text-red-600' : r.type === 'near_miss' ? 'text-amber-600' : 'text-orange-600',
     });
   });
 
@@ -434,10 +453,54 @@ export const getRecentActivity = (limit = 6) => {
 
 // ==================== REPORTS ====================
 
-export const getLocalReports = () => {
+export const getEmployeePerformanceData = () => {
   initLocalData();
-  return JSON.parse(localStorage.getItem(STORAGE_KEYS.REPORTS)) || [];
+  const users = getLocalUsers();
+  const reports = getLocalReports();
+  const risks = getLocalRiskAssessments();
+  const trainings = getLocalTrainings();
+  const actions = getLocalCorrectiveActions();
+
+  return users.map(user => {
+    const ur = reports.filter(r => r.assignedTo === user.id);
+    const closedReports = ur.filter(r => r.status === 'closed' || r.status === 'resolved').length;
+    const urisk = risks.filter(r => r.assignedTo === user.id);
+    const closedRisks = urisk.filter(r => r.status === 'closed').length;
+    const utr = trainings.filter(t => t.trainerId === user.id);
+    const completedTrainings = utr.filter(t => t.status === 'Completed').length;
+    const scoresTr = utr.filter(t => t.score);
+    const avgTrainingScore = scoresTr.length > 0 ? Math.round(scoresTr.reduce((s, t) => s + Number(t.score), 0) / scoresTr.length) : null;
+    const ua = actions.filter(a => a.assignedTo === user.id);
+    const completedActions = ua.filter(a => a.status === 'completed').length;
+    const overdueActions = ua.filter(a => a.status !== 'completed' && a.dueDate && new Date(a.dueDate) < new Date()).length;
+
+    const reportScore = Math.min((closedReports / Math.max(ur.length, 1)) * 30, 30);
+    const riskScore = Math.min((closedRisks / Math.max(urisk.length, 1)) * 30, 30);
+    const trainingScore = avgTrainingScore ? (avgTrainingScore / 100) * 20 : 0;
+    const actionScore = Math.min((completedActions / Math.max(ua.length, 1)) * 20, 20);
+
+    return {
+      ...user,
+      totalReports: ur.length,
+      closedReports,
+      openReports: ur.filter(r => r.status === 'open').length,
+      totalRisks: urisk.length,
+      closedRisks,
+      totalTrainings: utr.length,
+      completedTrainings,
+      avgTrainingScore,
+      totalActions: ua.length,
+      completedActions,
+      overdueActions,
+      performanceScore: Math.round(reportScore + riskScore + trainingScore + actionScore),
+    };
+  });
 };
+
+// ==================== CRUD FUNCTIONS ====================
+
+// Reports
+export const getLocalReports = () => { initLocalData(); return JSON.parse(localStorage.getItem(STORAGE_KEYS.REPORTS)) || []; };
 
 export const addLocalReport = (report) => {
   const reports = getLocalReports();
@@ -619,4 +682,66 @@ export const deleteLocalCorrectiveAction = (id) => {
 
 export const getCorrectiveActionsForReport = (reportId) => {
   return getLocalCorrectiveActions().filter(a => a.linkedReportId === reportId);
+};
+
+// Permits
+export const getLocalPermits = () => { initLocalData(); return JSON.parse(localStorage.getItem(STORAGE_KEYS.PERMITS)) || []; };
+
+export const addLocalPermit = (permit) => {
+  const items = getLocalPermits();
+  const count = items.length + 1;
+  const newItem = {
+    ...permit,
+    id: 'ptw_' + Date.now(),
+    permitNumber: `PTW-2026-${String(count).padStart(3, '0')}`,
+    createdAt: new Date().toISOString(),
+    status_history: [{ status: permit.status || 'pending', date: new Date().toISOString(), note: 'Permit created' }]
+  };
+  items.unshift(newItem);
+  localStorage.setItem(STORAGE_KEYS.PERMITS, JSON.stringify(items));
+  return newItem;
+};
+
+export const updateLocalPermit = (id, data) => {
+  const items = getLocalPermits();
+  const i = items.findIndex(p => p.id === id);
+  if (i !== -1) {
+    const existing = items[i];
+    let status_history = existing.status_history || [];
+    if (data.status && data.status !== existing.status) {
+      status_history = [...status_history, { status: data.status, date: new Date().toISOString(), note: data.statusNote || '' }];
+    }
+    items[i] = { ...existing, ...data, status_history, updatedAt: new Date().toISOString() };
+    localStorage.setItem(STORAGE_KEYS.PERMITS, JSON.stringify(items));
+  }
+};
+
+export const deleteLocalPermit = (id) => {
+  const permits = getLocalPermits().filter(p => p.id !== id);
+  localStorage.setItem(STORAGE_KEYS.PERMITS, JSON.stringify(permits));
+};
+
+// Inspections
+export const getLocalInspections = () => { initLocalData(); return JSON.parse(localStorage.getItem(STORAGE_KEYS.INSPECTIONS)) || []; };
+
+export const addLocalInspection = (inspection) => {
+  const items = getLocalInspections();
+  const newItem = { ...inspection, id: 'ins_' + Date.now(), createdAt: new Date().toISOString() };
+  items.unshift(newItem);
+  localStorage.setItem(STORAGE_KEYS.INSPECTIONS, JSON.stringify(items));
+  return newItem;
+};
+
+export const updateLocalInspection = (id, data) => {
+  const items = getLocalInspections();
+  const i = items.findIndex(x => x.id === id);
+  if (i !== -1) {
+    items[i] = { ...items[i], ...data, updatedAt: new Date().toISOString() };
+    localStorage.setItem(STORAGE_KEYS.INSPECTIONS, JSON.stringify(items));
+  }
+};
+
+export const deleteLocalInspection = (id) => {
+  const inspections = getLocalInspections().filter(x => x.id !== id);
+  localStorage.setItem(STORAGE_KEYS.INSPECTIONS, JSON.stringify(inspections));
 };
