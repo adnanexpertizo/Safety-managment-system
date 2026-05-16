@@ -4,21 +4,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 
 const variants = {
-
-  enter: { 
-    opacity: 1, 
-    y:  5,
-    transition: { 
-      duration: 0.45, 
-      ease: "easeOut" 
-    } 
+  hidden: {
+    opacity: 0,
+    y: 8,
   },
-  exit: { 
-    opacity: 0.6, 
+  enter: {
+    opacity: 1,
     y: 0,
-    transition: { 
-      duration: 0.9 
-    } 
+    transition: {
+      duration: 0.3,
+      ease: [0.25, 0.1, 0.25, 1], // cubic-bezier "ease"
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -4,
+    transition: {
+      duration: 0.15,
+      ease: [0.25, 0.1, 0.25, 1],
+    },
   },
 };
 
