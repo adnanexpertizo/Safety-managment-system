@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   AlertTriangle, TrendingUp, Users, Award, ShieldAlert, Clock,
-  Flame, Wrench, ArrowRight, Calendar, Activity, CheckCircle2,
+  Flame, Wrench, ArrowRight, Calendar, Eye, Activity, CheckCircle2,
   FileText, FileCheck, ClipboardCheck,
 } from 'lucide-react';
 import Table from '@/components/Table';
@@ -135,9 +135,11 @@ function DaysCounter({ days }) {
 
 function StatCard({ icon, label, value, color, bg, href }) {
   const inner = (
-    <div className={`bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all group ${href ? 'cursor-pointer' : ''}`}>
-      <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>{icon}</div>
-      <p className="text-xs text-gray-500 font-medium">{label}</p>
+    <div className={`bg-white border border-gray-200 rounded-xl p-4 flex justify-between items-center shadow-sm hover:shadow-md transition-all group ${href ? 'cursor-pointer' : ''}`}>
+      <div className='flex flex-col md:flex-row  md:items-center md:gap-3 '>
+        <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>{icon}</div>
+        <p className="text-xs text-gray-500 font-medium">{label}</p>
+      </div>
       <p className={`text-2xl sm:text-3xl font-black mt-1 ${color}`}>{value}</p>
     </div>
   );
@@ -205,7 +207,7 @@ export default function AdminDashboard() {
   ];
 
   const recentCols = [
-    { key: 'type', label: 'Type', render: r => <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 capitalize">{(r.type || '').replace('_', ' ')}</span> },
+    { key: 'type', label: 'Type', className: 'min-w-[120px]', render: r => <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 capitalize">{(r.type || '').replace('_', ' ')}</span> },
     { key: 'location', label: 'Location' },
     { key: 'severity', label: 'Severity', render: r => { const m = { high: 'bg-red-100 text-red-700', medium: 'bg-amber-100 text-amber-700', low: 'bg-green-100 text-green-700' }; return <span className={`px-2 py-1 rounded-full text-[10px] font-semibold capitalize ${m[r.severity] || m.medium}`}>{r.severity}</span>; } },
     { key: 'status', label: 'Status', render: r => <StatusBadge status={r.status} /> },
@@ -267,7 +269,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Location + Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-3 bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
           <p className="text-sm font-bold text-gray-800 mb-4">Reports by Location</p>
           {locationData.length > 0
@@ -291,7 +293,7 @@ export default function AdminDashboard() {
             {!recentActivity.length && <p className="text-xs text-gray-400 text-center py-6">No recent activity</p>}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Action Required — 4 items now */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
@@ -328,7 +330,7 @@ export default function AdminDashboard() {
           <Link href="/admin/reports" className="flex items-center gap-1 text-xs text-slate-600 hover:underline font-medium">View all <ArrowRight size={12} /></Link>
         </div>
         <Table columns={recentCols} data={recentReports}
-          actions={[{ id: 'view', label: 'View', icon: null }]}
+          actions={[{ id: 'view', label: 'View', icon: Eye }]}
           onActionClick={(_, row) => { window.location.href = `/admin/reports/${row.id}`; }}
           maxHeight="280px" itemsPerPage={5} emptyMessage="No reports yet"
         />

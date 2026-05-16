@@ -99,7 +99,7 @@ export default function Table({
                   })}
 
                   {actions.length > 0 && (
-                    <td className="px-2 sm:px-3 py-3 sticky right-0 bg-white group-hover:bg-slate-50 z-10 border-l border-gray-100">
+                    <td className="px-1 sm:px-3 py-2 sticky right-0 bg-white group-hover:bg-slate-50 z-10 border-l border-gray-100">
                       <div className="flex items-center justify-center gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
                         {actions.map((action, i) => {
                           const Icon = action.icon;
@@ -107,7 +107,7 @@ export default function Table({
                             <button
                               key={i}
                               onClick={(e) => { e.stopPropagation(); onActionClick(action.id, row); }}
-                              className={`p-1.5 sm:p-2 rounded-lg transition-all active:scale-95 ${
+                              className={`p-0.5 sm:p-1 rounded-lg transition-all active:scale-95 ${
                                 action.id === 'delete'
                                   ? 'hover:bg-red-50 hover:text-red-600 text-gray-400'
                                   : action.id === 'edit'
