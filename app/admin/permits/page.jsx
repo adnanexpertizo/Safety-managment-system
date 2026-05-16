@@ -125,7 +125,7 @@ export default function PermitsPage() {
 
   const columns = [
     { key: 'permitNumber', label: 'Permit #', className: 'min-w-[120px]', render: r => <span className="text-xs font-mono font-bold text-slate-700">{r.permitNumber}</span> },
-    { key: 'type', label: 'Type', render: r => <TypeBadge type={r.type} /> },
+    { key: 'type', label: 'Type', className: 'min-w-[150px]', render: r => <TypeBadge type={r.type} /> },
     { key: 'title', label: 'Title', className: 'min-w-[180px]', render: r => <span className="text-xs font-semibold text-gray-800">{r.title}</span> },
     { key: 'location', label: 'Location', className: 'min-w-[130px]' },
     { key: 'assignedName', label: 'Assigned To' },

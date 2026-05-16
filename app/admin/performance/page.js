@@ -263,7 +263,7 @@ function MobileCard({ emp, isExpanded, onToggle }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function PerformancePage() {
   const [data, setData] = useState([]);
-  const [filters, setFilters] = useState({ search: '', department: 'All', designation: 'All' });
+  const [filters, setFilters] = useState({ search: '', department: 'All department', designation: 'All designation' });
   const [expanded, setExpanded] = useState(null);
   const [sortBy, setSortBy] = useState('performanceScore');
   const [sortDir, setSortDir] = useState('desc');
@@ -280,13 +280,13 @@ export default function PerformancePage() {
       const t = filters.search.toLowerCase();
       r = r.filter(e => [e.name, e.email, e.designation, e.department].some(f => f?.toLowerCase().includes(t)));
     }
-    if (filters.department !== 'All') r = r.filter(e => e.department === filters.department);
-    if (filters.designation !== 'All') r = r.filter(e => e.designation === filters.designation);
+    if (filters.department !== 'All department') r = r.filter(e => e.department === filters.department);
+    if (filters.designation !== 'All designation') r = r.filter(e => e.designation === filters.designation);
     return [...r].sort((a, b) => sortDir === 'desc' ? b[sortBy] - a[sortBy] : a[sortBy] - b[sortBy]);
   }, [data, filters, sortBy, sortDir]);
 
-  const departments = ['All', ...new Set(data.map(e => e.department).filter(Boolean))];
-  const designations = ['All', ...new Set(data.map(e => e.designation).filter(Boolean))];
+  const departments = ['All department', ...new Set(data.map(e => e.department).filter(Boolean))];
+  const designations = ['All designation', ...new Set(data.map(e => e.designation).filter(Boolean))];
 
   const avgScore = filtered.length > 0
     ? Math.round(filtered.reduce((s, e) => s + e.performanceScore, 0) / filtered.length) : 0;

@@ -84,7 +84,7 @@ export default function UserManagement() {
   const [editingUser, setEditingUser] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, name: '' });
   const [formData, setFormData] = useState(EMPTY_FORM);
-  const [filters, setFilters] = useState({ search: '', department: 'All', designation: 'All', status: '' });
+  const [filters, setFilters] = useState({ search: '', department: 'All department', designation: 'All designation', status: '' });
 
   const refresh = () => setUsers(getLocalUsers());
   useEffect(() => { refresh(); }, []);
@@ -95,15 +95,15 @@ export default function UserManagement() {
         [u.name, u.email, u.designation, u.department].some(f =>
           f?.toLowerCase().includes(filters.search.toLowerCase())
         );
-      const matchDept = filters.department === 'All' || !filters.department || u.department === filters.department;
-      const matchDesig = filters.designation === 'All' || !filters.designation || u.designation === filters.designation;
+      const matchDept = filters.department === 'All department' || !filters.department || u.department === filters.department;
+      const matchDesig = filters.designation === 'All designation' || !filters.designation || u.designation === filters.designation;
       const matchStatus = !filters.status || u.status === filters.status;
       return matchSearch && matchDept && matchDesig && matchStatus;
     });
   }, [users, filters]);
 
-  const departments = ['All', ...new Set(users.map(u => u.department).filter(Boolean))];
-  const designations = ['All', ...new Set(users.map(u => u.designation).filter(Boolean))];
+  const departments = ['All department', ...new Set(users.map(u => u.department).filter(Boolean))];
+  const designations = ['All designation', ...new Set(users.map(u => u.designation).filter(Boolean))];
 
   const openModal = (user = null) => {
     setEditingUser(user);

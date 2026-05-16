@@ -22,7 +22,9 @@ export default function FilterBar({
 }) {
   const update = (key, val) => onFilterChange({ ...filters, [key]: val });
 
-  const hasActiveFilters = Object.values(filters).some(v => v && v !== 'All' && v !== 'all');
+  const hasActiveFilters = Object.values(filters).some(
+    v => v && v !== 'All' && v !== 'all' && v !== ''
+  );
 
   const clearAll = () => {
     const cleared = {};
@@ -67,114 +69,152 @@ export default function FilterBar({
     ...months.filter(m => m !== 'All Months').map(m => ({ value: m, label: m })),
   ];
 
-  return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-3 sm:p-4">
-      <div className="flex flex-wrap gap-2 sm:gap-3">
+  // Collect all active filter items to render in grid
+  const filterItems = [];
 
-        {showSearch && (
-          <div className="relative flex-1 min-w-[160px]">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={filters.search || ''}
-              onChange={(e) => update('search', e.target.value)}
-              className="min-w-[140px] sm:min-w-[160px] pl-8 pr-3 py-2.5 sm:py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-xl focus:border-slate-500 focus:ring-2 focus:ring-slate-100 focus:outline-none transition"
-            />
-            {filters.search && (
-              <button onClick={() => update('search', '')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                <X size={13} />
-              </button>
-            )}
-          </div>
-        )}
-
-        {showStatus && (
-          <div className="min-w-[140px] sm:min-w-[160px]">
-            <CustomSelect
-              value={filters.status || ''}
-              onChange={(v) => update('status', v)}
-              options={statusOptions}
-              placeholder="All Statuses"
-            />
-          </div>
-        )}
-
-        {showReportType && (
-          <div className="min-w-[140px] sm:min-w-[150px]">
-            <CustomSelect
-              value={filters.type || ''}
-              onChange={(v) => update('type', v)}
-              options={reportTypeOptions}
-              placeholder="All Types"
-            />
-          </div>
-        )}
-
-        {showCategory && (
-          <div className="min-w-[140px] sm:min-w-[160px]">
-            <CustomSelect
-              value={filters.category || ''}
-              onChange={(v) => update('category', v)}
-              options={categoryOptions}
-              placeholder="All Categories"
-            />
-          </div>
-        )}
-
-        {showEmployee && employees.length > 0 && (
-          <div className="min-w-[150px] sm:min-w-[180px]">
-            <CustomSelect
-              value={filters.assignedTo || ''}
-              onChange={(v) => update('assignedTo', v)}
-              options={employeeOptions}
-              placeholder="All Employees"
-            />
-          </div>
-        )}
-
-        {showDepartment && departments.length > 0 && (
-          <div className="min-w-[140px] sm:min-w-[160px]">
-            <CustomSelect
-              value={filters.department || 'All'}
-              onChange={(v) => update('department', v)}
-              options={departments.map(d => ({ value: d, label: d }))}
-              placeholder="All Departments"
-            />
-          </div>
-        )}
-
-        {showDesignation && designations.length > 0 && (
-          <div className="min-w-[140px] sm:min-w-[160px]">
-            <CustomSelect
-              value={filters.designation || 'All'}
-              onChange={(v) => update('designation', v)}
-              options={designations.map(d => ({ value: d, label: d }))}
-              placeholder="All Designations"
-            />
-          </div>
-        )}
-
-        {showMonth && monthOptions.length > 1 && (
-          <div className="min-w-[130px] sm:min-w-[150px]">
-            <CustomSelect
-              value={filters.month || 'all'}
-              onChange={(v) => update('month', v)}
-              options={monthOptions}
-              placeholder="All Months"
-            />
-          </div>
-        )}
-
-        {hasActiveFilters && (
+  // Search is always first if enabled
+  if (showSearch) {
+    filterItems.push(
+      <div key="search" className="relative w-full">
+        <Search
+          size={14}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10"
+        />
+        <input
+          type="text"
+          placeholder="Search..."
+          value={filters.search || ''}
+          onChange={e => update('search', e.target.value)}
+          className="w-full pl-9 pr-8 py-3 text-sm bg-white border border-gray-200 rounded-xl text-gray-800 placeholder:text-gray-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-100 focus:outline-none transition hover:border-gray-300"
+        />
+        {filters.search && (
           <button
-            onClick={clearAll}
-            className="flex items-center gap-1.5 px-3 py-2.5 text-xs text-gray-500 hover:text-red-600 hover:bg-red-50 border border-dashed border-gray-300 hover:border-red-300 rounded-xl transition-all whitespace-nowrap"
+            onClick={() => update('search', '')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
           >
-            <X size={12} /> Clear all
+            <X size={13} />
           </button>
         )}
       </div>
+    );
+  }
+
+  if (showStatus) {
+    filterItems.push(
+      <CustomSelect
+        key="status"
+        value={filters.status || ''}
+        onChange={v => update('status', v)}
+        options={statusOptions}
+        placeholder="All Statuses"
+      />
+    );
+  }
+
+  if (showReportType) {
+    filterItems.push(
+      <CustomSelect
+        key="type"
+        value={filters.type || ''}
+        onChange={v => update('type', v)}
+        options={reportTypeOptions}
+        placeholder="All Types"
+      />
+    );
+  }
+
+  if (showCategory) {
+    filterItems.push(
+      <CustomSelect
+        key="category"
+        value={filters.category || ''}
+        onChange={v => update('category', v)}
+        options={categoryOptions}
+        placeholder="All Categories"
+      />
+    );
+  }
+
+  if (showEmployee && employees.length > 0) {
+    filterItems.push(
+      <CustomSelect
+        key="employee"
+        value={filters.assignedTo || ''}
+        onChange={v => update('assignedTo', v)}
+        options={employeeOptions}
+        placeholder="All Employees"
+      />
+    );
+  }
+
+  if (showDepartment && departments.length > 0) {
+    filterItems.push(
+      <CustomSelect
+        key="department"
+        value={filters.department || 'All'}
+        onChange={v => update('department', v)}
+        options={departments.map(d => ({ value: d, label: d }))}
+        placeholder="All Departments"
+      />
+    );
+  }
+
+  if (showDesignation && designations.length > 0) {
+    filterItems.push(
+      <CustomSelect
+        key="designation"
+        value={filters.designation || 'All'}
+        onChange={v => update('designation', v)}
+        options={designations.map(d => ({ value: d, label: d }))}
+        placeholder="All Designations"
+      />
+    );
+  }
+
+  if (showMonth && monthOptions.length > 1) {
+    filterItems.push(
+      <CustomSelect
+        key="month"
+        value={filters.month || 'all'}
+        onChange={v => update('month', v)}
+        options={monthOptions}
+        placeholder="All Months"
+      />
+    );
+  }
+
+  // Determine grid columns based on number of filter items
+  const count = filterItems.length;
+  // Always 2 on mobile, up to 4 on xl
+  const gridCols =
+    count <= 2
+      ? 'grid-cols-2'
+      : count === 3
+      ? 'grid-cols-2 lg:grid-cols-3'
+      : 'grid-cols-2 xl:grid-cols-4';
+
+  if (filterItems.length === 0) return null;
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-3 sm:p-4">
+      <div className={`grid ${gridCols} gap-2 sm:gap-3`}>
+        {filterItems}
+      </div>
+
+      {/* Clear all — shown below grid when filters active */}
+      {hasActiveFilters && (
+        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+          <p className="text-[11px] text-gray-400 font-medium">
+            {Object.values(filters).filter(v => v && v !== 'All' && v !== 'all' && v !== '').length} filter{Object.values(filters).filter(v => v && v !== 'All' && v !== 'all' && v !== '').length !== 1 ? 's' : ''} active
+          </p>
+          <button
+            onClick={clearAll}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 border border-red-200 hover:border-red-300 rounded-lg transition-all"
+          >
+            <X size={11} /> Clear all
+          </button>
+        </div>
+      )}
     </div>
   );
 }
