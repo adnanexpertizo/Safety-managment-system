@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap');
 
 /* =========================
    MINIMAL THEME (4 COLORS)
@@ -10,20 +11,9 @@
   --primary: #4ade80;
   --primary-light: #1f2937;
 
-  --border: #374151;       /* light border */
-}
-
-/* =========================
-   DARK MODE (OPTIONAL)
-========================= */
-.dark {
-  --background: #111827;
-  --foreground: #f9fafb;
-
-  --primary: #4ade80;
-  --primary-light: #1f2937;
-
   --border: #374151;
+
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* =========================
@@ -37,6 +27,8 @@
   --color-primary-light: var(--primary-light);
 
   --color-border: var(--border);
+
+  --font-family-sans: var(--font-sans);
 }
 
 /* =========================
@@ -47,18 +39,27 @@
     @apply border-border;
   }
 
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
   }
 
   input,
   textarea,
   select {
     @apply w-full px-3 py-2 rounded-md border border-border bg-background text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary;
+    font-family: var(--font-sans);
   }
 
   button {
     @apply rounded-md font-medium transition;
+    font-family: var(--font-sans);
   }
 }
 
