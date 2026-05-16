@@ -354,7 +354,7 @@ export default function AdminRiskAssessments() {
       ) : <span className="text-gray-300 text-xs">—</span>
     },
     { key: 'assignedName', label: 'Assigned To', className: 'min-w-[130px]' },
-    { key: 'status', label: 'Status', render: r => <StatusBadge status={r.status} /> },
+    { key: 'status', label: 'Status', render: r => <StatusBadge status={r.status} />,  className: 'min-w-[150px]' },
     { key: 'reviewDate', label: 'Review Date', type: 'date' },
   ];
 
@@ -414,7 +414,6 @@ export default function AdminRiskAssessments() {
           if (action === 'edit') openModal(row);
           if (action === 'delete') setDeleteModal({ isOpen: true, id: row.id });
         }}
-        maxHeight="calc(100vh - 420px)"
         className="min-w-[900px]"
         emptyMessage="No risk assessments found."
       />

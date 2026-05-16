@@ -460,24 +460,48 @@ export const getEmployeePerformanceData = () => {
   const risks = getLocalRiskAssessments();
   const trainings = getLocalTrainings();
   const actions = getLocalCorrectiveActions();
+  const permits = getLocalPermits();           // ← NEW
+  const inspections = getLocalInspections();   // ← NEW
 
   return users.map(user => {
+    // Reports
     const ur = reports.filter(r => r.assignedTo === user.id);
     const closedReports = ur.filter(r => r.status === 'closed' || r.status === 'resolved').length;
+
+    // Risks
     const urisk = risks.filter(r => r.assignedTo === user.id);
     const closedRisks = urisk.filter(r => r.status === 'closed').length;
+
+    // Trainings
     const utr = trainings.filter(t => t.trainerId === user.id);
     const completedTrainings = utr.filter(t => t.status === 'Completed').length;
     const scoresTr = utr.filter(t => t.score);
-    const avgTrainingScore = scoresTr.length > 0 ? Math.round(scoresTr.reduce((s, t) => s + Number(t.score), 0) / scoresTr.length) : null;
+    const avgTrainingScore = scoresTr.length > 0
+      ? Math.round(scoresTr.reduce((s, t) => s + Number(t.score), 0) / scoresTr.length)
+      : null;
+
+    // Corrective Actions
     const ua = actions.filter(a => a.assignedTo === user.id);
     const completedActions = ua.filter(a => a.status === 'completed').length;
-    const overdueActions = ua.filter(a => a.status !== 'completed' && a.dueDate && new Date(a.dueDate) < new Date()).length;
+    const overdueActions = ua.filter(
+      a => a.status !== 'completed' && a.dueDate && new Date(a.dueDate) < new Date()
+    ).length;
 
-    const reportScore = Math.min((closedReports / Math.max(ur.length, 1)) * 30, 30);
-    const riskScore = Math.min((closedRisks / Math.max(urisk.length, 1)) * 30, 30);
+    // Permits ← NEW
+    const up = permits.filter(p => p.assignedTo === user.id);
+    const completedPermits = up.filter(p => p.status === 'completed').length;
+
+    // Inspections ← NEW
+    const ui = inspections.filter(i => i.inspectorId === user.id);
+    const completedInspections = ui.filter(i => i.status === 'completed').length;
+
+    // Score — 6 dimensions, total = 100
+    const reportScore   = Math.min((closedReports       / Math.max(ur.length,    1)) * 25, 25);
+    const riskScore     = Math.min((closedRisks         / Math.max(urisk.length, 1)) * 25, 25);
     const trainingScore = avgTrainingScore ? (avgTrainingScore / 100) * 20 : 0;
-    const actionScore = Math.min((completedActions / Math.max(ua.length, 1)) * 20, 20);
+    const actionScore   = Math.min((completedActions    / Math.max(ua.length,    1)) * 15, 15);
+    const permitScore   = Math.min((completedPermits    / Math.max(up.length,    1)) * 10, 10); // ← NEW
+    const inspectScore  = Math.min((completedInspections / Math.max(ui.length,   1)) *  5,  5); // ← NEW
 
     return {
       ...user,
@@ -492,7 +516,13 @@ export const getEmployeePerformanceData = () => {
       totalActions: ua.length,
       completedActions,
       overdueActions,
-      performanceScore: Math.round(reportScore + riskScore + trainingScore + actionScore),
+      totalPermits: up.length,        // ← NEW
+      completedPermits,               // ← NEW
+      totalInspections: ui.length,    // ← NEW
+      completedInspections,           // ← NEW
+      performanceScore: Math.round(
+        reportScore + riskScore + trainingScore + actionScore + permitScore + inspectScore
+      ),
     };
   });
 };
