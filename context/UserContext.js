@@ -9,23 +9,27 @@ export function UserProvider({ children }) {
 
   const loginAsOfficer = () => {
     setUser({
-      id: 'officer-001',
-      name: 'Safety Officer',
-      email: 'officer@safety.com',
-      role: 'OFFICER',
-      department: 'Operations',
-      photo: null,
+    id: 'emp1',
+    name: 'John Smith',
+    email: 'john@safety.com',
+    role: 'OFFICER',
+    department: 'Operations',
+    designation: 'Safety Officer',
+    status: 'Active',
+    createdAt: '2026-01-01T00:00:00.000Z',
     });
   };  
 
   const loginAsAdmin = () => {
     setUser({
-      id: 'admin-001',
-      name: 'Admin User',
-      email: 'admin@safety.com',
-      role: 'ADMIN',
-      department: 'Safety Management',
-      photo: null,
+    id: 'emp2',
+    name: 'Adnan Rafiq',
+    email: 'adnan@safety.com',
+    role: 'ADMIN',
+    department: 'HSE',
+    designation: 'HSE Manager',
+    status: 'Active',
+    createdAt: '2026-01-01T00:00:00.000Z',
     });
   };
 
